@@ -1,0 +1,24 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "NARAD Postgres (direct :5433)",
+      "Group": "NARAD V2",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "narad_v2",
+      "Username": "postgres",
+      "SSLMode": "prefer",
+      "Comment": "Direct connection — use for admin and migrations"
+    },
+    "2": {
+      "Name": "NARAD PgBouncer (pooled :5432)",
+      "Group": "NARAD V2",
+      "Host": "pgbouncer",
+      "Port": 5432,
+      "MaintenanceDB": "narad_v2",
+      "Username": "narad_app",
+      "SSLMode": "prefer",
+      "Comment": "App connection through PgBouncer transaction pool"
+    }
+  }
+}
