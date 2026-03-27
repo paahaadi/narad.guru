@@ -1,0 +1,88 @@
+# narad.guru — Docker Compose (Phase 2A data plane)
+# Requires: .env file copied from .env.example with real passwords
+
+services:
+  postgres:
+    image: timescale/timescaledb-ha:pg16-latest
+    environment:
+      POSTGRES_USER: ${POSTGRES_SUPERUSER}
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      PGDATA: /home/postgres/pgdata/data
+    volumes:
+      - narad_pgdata:/home/postgres/pgdata/data
+    ports:
+      - "${POSTGRES_DIRECT_PORT:-5433}:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_SUPERUSER:-postgres}", "-d", "${POSTGRES_DB:-narad_v2}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - narad
+    env_file:
+      - .env
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes --save 60 1
+    volumes:
+      - narad_redis:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - narad
+
+  pgbouncer:
+    image: edoburu/pgbouncer:latest
+    volumes:
+      - ./infra/pgbouncer/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini:ro
+      - ./infra/pgbouncer/userlist.txt:/etc/pgbouncer/userlist.txt:ro
+    ports:
+      - "${POSTGRES_POOL_PORT:-5432}:5432"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - narad
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@narad.local}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    volumes:
+      - narad_pgadmin:/var/lib/pgadmin
+      - ./infra/pgadmin/servers.json:/pgadmin4/servers.json:ro
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    networks:
+      - narad
+    env_file:
+      - .env
+
+  redisinsight:
+    image: redis/redisinsight:2
+    volumes:
+      - narad_redisinsight:/data
+    ports:
+      - "${REDISINSIGHT_PORT:-5540}:5540"
+    networks:
+      - narad
+
+networks:
+  narad:
+    driver: bridge
+
+volumes:
+  narad_pgdata:
+  narad_redis:
+  narad_pgadmin:
+  narad_redisinsight:
