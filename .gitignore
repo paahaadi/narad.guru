@@ -1,0 +1,27 @@
+# Environment files with secrets
+.env
+.env.local
+.env.production
+.env.staging
+
+# Keep the example template
+!.env.example
+
+# JWT keys
+keys/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+.next/
+dist/
+build/
+
+# Tile data (large binary files)
+data/tiles/
+
+# Logs
+*.log
