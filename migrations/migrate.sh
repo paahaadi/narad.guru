@@ -138,8 +138,11 @@ for file in "$SCRIPT_DIR"/*.sql; do
   # TimescaleDB DDL (create_hypertable, add_retention_policy, etc.) cannot run
   # inside a transaction block — apply it directly without the wrapping BEGIN/COMMIT.
   if [[ "$filename" == "009_timescaledb.sql" ]]; then
-    error_output=$(psql "${PSQL_CONN[@]}" -v ON_ERROR_STOP=1 -f "$file" 2>&1)
-    psql_exit=$?
+    if error_output=$(psql "${PSQL_CONN[@]}" -v ON_ERROR_STOP=1 -f "$file" 2>&1); then
+      psql_exit=0
+    else
+      psql_exit=$?
+    fi
     if [[ $psql_exit -eq 0 ]]; then
       psql "${PSQL_CONN[@]}" -c \
         "INSERT INTO public._migrations (filename, sha256) VALUES ('$filename', '$current_sha');" \
@@ -156,14 +159,17 @@ for file in "$SCRIPT_DIR"/*.sql; do
   else
     # All other migrations: wrap apply + tracking INSERT in a single transaction
     # so that a killed process cannot leave a migration applied-but-untracked.
-    error_output=$(psql "${PSQL_CONN[@]}" -v ON_ERROR_STOP=1 2>&1 <<MIGRATION_EOF
+    if error_output=$(psql "${PSQL_CONN[@]}" -v ON_ERROR_STOP=1 2>&1 <<MIGRATION_EOF
 BEGIN;
 $(cat "$file")
 INSERT INTO public._migrations (filename, sha256) VALUES ('$filename', '$current_sha');
 COMMIT;
 MIGRATION_EOF
-    )
-    psql_exit=$?
+    ); then
+      psql_exit=0
+    else
+      psql_exit=$?
+    fi
     if [[ $psql_exit -eq 0 ]]; then
       echo -e "${GREEN}✓${RESET}"
       APPLIED=$((APPLIED + 1))

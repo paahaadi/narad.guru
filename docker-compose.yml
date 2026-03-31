@@ -3,7 +3,7 @@
 
 services:
   postgres:
-    image: timescale/timescaledb-ha:pg16-latest
+    image: timescale/timescaledb-ha:pg16-all
     environment:
       POSTGRES_USER: ${POSTGRES_SUPERUSER}
       POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD}
@@ -44,7 +44,7 @@ services:
       - ./infra/pgbouncer/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini:ro
       - ./infra/pgbouncer/userlist.txt:/etc/pgbouncer/userlist.txt:ro
     ports:
-      - "${POSTGRES_POOL_PORT:-5432}:5432"
+      - "${POSTGRES_POOL_PORT:-6432}:5432"
     depends_on:
       postgres:
         condition: service_healthy
@@ -54,7 +54,7 @@ services:
   pgadmin:
     image: dpage/pgadmin4:latest
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@narad.local}
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@narad.guru}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
       PGADMIN_CONFIG_SERVER_MODE: 'False'
       PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
@@ -69,11 +69,131 @@ services:
       - .env
 
   redisinsight:
-    image: redis/redisinsight:2
+    image: redis/redisinsight:latest
     volumes:
       - narad_redisinsight:/data
     ports:
       - "${REDISINSIGHT_PORT:-5540}:5540"
+    networks:
+      - narad
+
+  web:
+    build:
+      context: ./apps/web
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://narad_app:${POSTGRES_APP_PASSWORD}@pgbouncer:5432/narad_v2
+      JWT_ISSUER: ${JWT_ISSUER}
+      JWT_PUBLIC_KEY_PEM: ${JWT_PUBLIC_KEY_PEM}
+      JWT_PUBLIC_KEY_URL: ${JWT_PUBLIC_KEY_URL}
+      APP_AUTH_COOKIE_NAME: ${APP_AUTH_COOKIE_NAME:-narad_session}
+      NEXT_PUBLIC_APP_AUTH_COOKIE_NAME: ${NEXT_PUBLIC_APP_AUTH_COOKIE_NAME:-narad_session}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+      NEXT_PUBLIC_WS_URL: ${NEXT_PUBLIC_WS_URL:-ws://localhost:3001}
+      NEXT_PUBLIC_GATEWAY_WS_URL: ${NEXT_PUBLIC_GATEWAY_WS_URL:-ws://localhost:3001}
+      NEXT_PUBLIC_MAP_STYLE_URL: ${NEXT_PUBLIC_MAP_STYLE_URL:-https://demotiles.maplibre.org/style.json}
+      PORT: 3000
+    depends_on:
+      pgbouncer:
+        condition: service_started
+      gateway:
+        condition: service_started
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    networks:
+      - narad
+
+  gateway:
+    build:
+      context: ./apps/gateway
+    env_file:
+      - .env
+    environment:
+      GATEWAY_PORT: 3001
+      REDIS_URL: redis://redis:6379/0
+      JWT_ISSUER: ${JWT_ISSUER}
+      JWT_PUBLIC_KEY_PEM: ${JWT_PUBLIC_KEY_PEM}
+      JWT_PUBLIC_KEY_URL: ${JWT_PUBLIC_KEY_URL}
+    depends_on:
+      redis:
+        condition: service_healthy
+    ports:
+      - "${GATEWAY_PORT:-3001}:3001"
+    networks:
+      - narad
+
+  intelligence:
+    build:
+      context: ./apps/intelligence
+    command: uvicorn narad.main:app --host 0.0.0.0 --port 8000
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://narad_worker:${POSTGRES_WORKER_PASSWORD}@pgbouncer:5432/narad_v2
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/3
+      CELERY_RESULT_BACKEND: redis://redis:6379/4
+      INTELLIGENCE_PORT: 8000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      pgbouncer:
+        condition: service_started
+      redis:
+        condition: service_healthy
+    ports:
+      - "${INTELLIGENCE_PORT:-8000}:8000"
+    networks:
+      - narad
+
+  celery-worker:
+    build:
+      context: ./apps/intelligence
+    command: celery -A narad.workers.celery_app:celery worker --loglevel=INFO --concurrency=${CELERY_WORKER_CONCURRENCY:-4} --prefetch-multiplier=${CELERY_WORKER_PREFETCH_MULTIPLIER:-2}
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://narad_worker:${POSTGRES_WORKER_PASSWORD}@pgbouncer:5432/narad_v2
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/3
+      CELERY_RESULT_BACKEND: redis://redis:6379/4
+      CELERY_WORKER_CONCURRENCY: ${CELERY_WORKER_CONCURRENCY:-4}
+      CELERY_WORKER_PREFETCH_MULTIPLIER: ${CELERY_WORKER_PREFETCH_MULTIPLIER:-2}
+      CELERY_TASK_SOFT_TIME_LIMIT: ${CELERY_TASK_SOFT_TIME_LIMIT:-300}
+      CELERY_TASK_TIME_LIMIT: ${CELERY_TASK_TIME_LIMIT:-600}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      pgbouncer:
+        condition: service_started
+      redis:
+        condition: service_healthy
+    networks:
+      - narad
+
+  celery-beat:
+    build:
+      context: ./apps/intelligence
+    command: celery -A narad.workers.celery_app:celery beat --loglevel=INFO
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://narad_worker:${POSTGRES_WORKER_PASSWORD}@pgbouncer:5432/narad_v2
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/3
+      CELERY_RESULT_BACKEND: redis://redis:6379/4
+      CELERY_WORKER_CONCURRENCY: ${CELERY_WORKER_CONCURRENCY:-4}
+      CELERY_WORKER_PREFETCH_MULTIPLIER: ${CELERY_WORKER_PREFETCH_MULTIPLIER:-2}
+      CELERY_TASK_SOFT_TIME_LIMIT: ${CELERY_TASK_SOFT_TIME_LIMIT:-300}
+      CELERY_TASK_TIME_LIMIT: ${CELERY_TASK_TIME_LIMIT:-600}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      pgbouncer:
+        condition: service_started
+      redis:
+        condition: service_healthy
     networks:
       - narad
 

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>GeoStrat — Sovereign Intelligence Command</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;600;800&amp;family=Inter:wght@300;400;600&amp;family=Space+Grotesk:wght@300;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "accent-orange": "#ec7609",
+              "inverse-surface": "#f9f9ff",
+              "surface-container-highest": "#1c2639",
+              "error": "#ee7d77",
+              "primary-dim": "#ec7609",
+              "primary-fixed": "#ffdcc2",
+              "primary-container": "#4a2100",
+              "error-dim": "#bb5551",
+              "on-error": "#490106",
+              "on-surface": "#dce5ff",
+              "on-secondary-fixed-variant": "#565b69",
+              "secondary-dim": "#999ead",
+              "outline-variant": "#3f485d",
+              "on-background": "#dce5ff",
+              "surface-variant": "#1c2639",
+              "outline": "#6c758c",
+              "surface-tint": "#ec7609",
+              "surface-container-low": "#0f131d",
+              "secondary-fixed-dim": "#d0d4e4",
+              "secondary-fixed": "#dee2f2",
+              "on-tertiary-fixed": "#003640",
+              "on-tertiary-container": "#004b58",
+              "surface": "#0b0e15",
+              "on-tertiary-fixed-variant": "#005564",
+              "tertiary-dim": "#40ceed",
+              "on-primary": "#ffffff",
+              "surface-bright": "#212c43",
+              "tertiary-fixed-dim": "#40ceed",
+              "background": "#0b0e15",
+              "on-tertiary": "#005464",
+              "surface-dim": "#0b0e15",
+              "surface-container-lowest": "#000000",
+              "on-secondary": "#1b202c",
+              "on-surface-variant": "#a2abc4",
+              "on-secondary-container": "#babfcf",
+              "on-primary-fixed-variant": "#713700",
+              "tertiary-container": "#53ddfc",
+              "on-secondary-fixed": "#3a3f4c",
+              "on-primary-container": "#ffdcc2",
+              "primary-fixed-dim": "#ffb786",
+              "inverse-on-surface": "#52555d",
+              "tertiary": "#8ce7ff",
+              "secondary": "#999ead",
+              "tertiary-fixed": "#53ddfc",
+              "inverse-primary": "#ec7609",
+              "secondary-container": "#363b48",
+              "surface-container-high": "#18202f",
+              "on-primary-fixed": "#2d1600",
+              "on-error-container": "#ff9993",
+              "surface-container": "#141a26",
+              "primary": "#ec7609",
+              "error-container": "#7f2927"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"],
+              "mono": ["Space Grotesk"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 20;
+        }
+        .map-gradient-overlay {
+            background: radial-gradient(circle at center, transparent 0%, rgba(11, 14, 21, 0.4) 70%, rgba(11, 14, 21, 0.9) 100%);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container overflow-hidden">
+<div class="flex h-screen w-full overflow-hidden">
+<!-- Standardized Sidebar -->
+<aside class="bg-surface-container-low border-r border-outline-variant/10 w-64 flex flex-col z-50">
+<!-- Brand Section -->
+<div class="h-16 flex items-center px-6 gap-3">
+<div class="w-8 h-8 bg-accent-orange rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-xl">security</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-headline font-black text-on-surface tracking-widest text-lg">NARAD</span>
+<div class="h-4 w-[1px] bg-outline-variant/30"></div>
+<span class="text-accent-orange font-bold text-sm tracking-tighter">GeoStrat</span>
+</div>
+</div>
+<!-- Navigation Rail -->
+<nav class="flex-1 px-4 py-6 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-accent-orange bg-accent-orange/10 rounded-lg group transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="public">public</span>
+<span class="text-sm font-semibold">GeoStrat</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-secondary hover:text-on-surface hover:bg-surface-container-high rounded-lg group transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-sm font-semibold">PulseBoard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-secondary hover:text-on-surface hover:bg-surface-container-high rounded-lg group transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="business_center">business_center</span>
+<span class="text-sm font-semibold">CorpWatch</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-secondary hover:text-on-surface hover:bg-surface-container-high rounded-lg group transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="gavel">gavel</span>
+<span class="text-sm font-semibold">LexPulse</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-secondary hover:text-on-surface hover:bg-surface-container-high rounded-lg group transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="visibility">visibility</span>
+<span class="text-sm font-semibold">Watchlists</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-secondary hover:text-on-surface hover:bg-surface-container-high rounded-lg group transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="troubleshoot">troubleshoot</span>
+<span class="text-sm font-semibold">Investigations</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-secondary hover:text-on-surface hover:bg-surface-container-high rounded-lg group transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span class="text-sm font-semibold">Briefings</span>
+</a>
+</nav>
+<div class="p-4 border-t border-outline-variant/10 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-secondary hover:text-on-surface hover:bg-surface-container-high rounded-lg group transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="workspaces">workspaces</span>
+<span class="text-sm font-semibold">Workspace</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-secondary hover:text-on-surface hover:bg-surface-container-high rounded-lg group transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-sm font-semibold">Settings</span>
+</a>
+</div>
+</aside>
+<main class="flex-1 flex flex-col relative overflow-hidden bg-surface">
+<!-- Standardized Header -->
+<header class="h-16 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/10 flex items-center justify-between px-6 z-40 shrink-0">
+<!-- Left Header -->
+<div class="flex items-center gap-8">
+<nav class="flex gap-6">
+<a class="text-accent-orange font-bold border-b-2 border-accent-orange text-[10px] uppercase tracking-[0.2em] font-headline py-5" href="#">Intelligence</a>
+<a class="text-secondary hover:text-on-surface transition-colors text-[10px] uppercase tracking-[0.2em] font-headline py-5" href="#">Map Analysis</a>
+</nav>
+</div>
+<!-- Central Search Bar -->
+<div class="flex-1 max-w-2xl px-8">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-secondary text-lg group-focus-within:text-accent-orange transition-colors">search</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant/20 text-sm pl-11 pr-4 py-2 rounded-full focus:ring-1 focus:ring-accent-orange/40 focus:border-accent-orange/40 text-on-surface-variant outline-none transition-all placeholder:text-secondary/50" placeholder="Ask NARAD: Search location, entity or risk..." type="text"/>
+<div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5 pointer-events-none">
+<span class="text-[10px] font-mono text-secondary px-1.5 py-0.5 border border-outline-variant/20 rounded uppercase">Alt</span>
+<span class="text-[10px] font-mono text-secondary px-1.5 py-0.5 border border-outline-variant/20 rounded uppercase">K</span>
+</div>
+</div>
+</div>
+<!-- Right Utility Cluster -->
+<div class="flex items-center gap-1">
+<button class="p-2 text-secondary hover:text-accent-orange hover:bg-surface-container-high rounded-lg transition-colors" title="Calendar">
+<span class="material-symbols-outlined">calendar_today</span>
+</button>
+<button class="p-2 text-secondary hover:text-accent-orange hover:bg-surface-container-high rounded-lg transition-colors" title="Region">
+<span class="material-symbols-outlined">language</span>
+</button>
+<button class="p-2 text-secondary hover:text-accent-orange hover:bg-surface-container-high rounded-lg transition-colors relative" title="Notifications">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-1.5 h-1.5 bg-error rounded-full border border-surface"></span>
+</button>
+<button class="p-2 text-secondary hover:text-accent-orange hover:bg-surface-container-high rounded-lg transition-colors" title="Export">
+<span class="material-symbols-outlined">ios_share</span>
+</button>
+<div class="h-6 w-[1px] bg-outline-variant/20 mx-2"></div>
+<button class="flex items-center gap-2 p-1 pl-1 pr-3 rounded-full hover:bg-surface-container-high transition-colors">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center overflow-hidden border border-outline-variant/20">
+<span class="material-symbols-outlined text-secondary">account_circle</span>
+</div>
+<span class="text-xs font-semibold text-secondary">Admin</span>
+</button>
+</div>
+</header>
+<!-- Main Canvas (Starts at consistent baseline) -->
+<div class="flex-1 relative">
+<!-- Map Background -->
+<div class="absolute inset-0 z-0">
+<img alt="Intelligence Map of India" class="w-full h-full object-cover opacity-60 grayscale brightness-50" data-location="India" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTraRaIJNxSU1r6epCAaYMYJpZyWTa7b4sSQRxU1_5IzSWwhfAMBmRJ4bFxpVGGp48r379GEn_t8sXwQmmdBBhPVvEVneRNmnzJPU3txcknb37Vxde6uw0k0jaFAvcqdBBMKyn-3jEjUfHCaUwH2cHv51Pb83nnekw5phrV7Gr9YBdgX52KeTBksJqF8mLoDHX2ov9OV9jCGWfbTDRMI6nExmhHjp4bKuVjHOIFJdDDeugYbxxRU7WAGY--Vub3fBIzf62TQtIFLE"/>
+<div class="absolute inset-0 map-gradient-overlay"></div>
+</div>
+<!-- KPI Horizontal Strip -->
+<div class="absolute top-6 left-1/2 -translate-x-1/2 z-20 flex gap-4 w-fit max-w-full px-4">
+<div class="bg-surface-container-low/90 backdrop-blur-md p-3 px-5 rounded-lg border border-outline-variant/10 min-w-[160px]">
+<div class="text-[10px] text-secondary font-mono uppercase tracking-widest">Active Events</div>
+<div class="text-2xl font-headline font-bold text-accent-orange">12,482</div>
+<div class="text-[10px] text-emerald-400 font-mono mt-1">+2.4% vs 24h</div>
+</div>
+<div class="bg-surface-container-low/90 backdrop-blur-md p-3 px-5 rounded-lg border border-outline-variant/10 min-w-[160px]">
+<div class="text-[10px] text-secondary font-mono uppercase tracking-widest">Critical Alerts</div>
+<div class="text-2xl font-headline font-bold text-error">09</div>
+<div class="text-[10px] text-error font-mono mt-1">High Severity</div>
+</div>
+<div class="bg-surface-container-low/90 backdrop-blur-md p-3 px-5 rounded-lg border border-outline-variant/10 min-w-[160px]">
+<div class="text-[10px] text-secondary font-mono uppercase tracking-widest">Risk Districts</div>
+<div class="text-2xl font-headline font-bold text-on-surface">14</div>
+<div class="text-[10px] text-secondary font-mono mt-1">Tier 1 Zones</div>
+</div>
+<div class="bg-surface-container-low/90 backdrop-blur-md p-3 px-5 rounded-lg border border-outline-variant/10 min-w-[160px]">
+<div class="text-[10px] text-secondary font-mono uppercase tracking-widest">Infra Disrupt</div>
+<div class="text-2xl font-headline font-bold text-tertiary">03</div>
+<div class="text-[10px] text-tertiary font-mono mt-1">Energy Grid</div>
+</div>
+<div class="bg-surface-container-low/90 backdrop-blur-md p-3 px-5 rounded-lg border border-outline-variant/10 min-w-[160px]">
+<div class="text-[10px] text-secondary font-mono uppercase tracking-widest">Corporate Risk</div>
+<div class="text-2xl font-headline font-bold text-on-surface">Med</div>
+<div class="text-[10px] text-secondary font-mono mt-1">Steady State</div>
+</div>
+</div>
+<!-- Left Map Control Rail -->
+<div class="absolute left-6 top-1/2 -translate-y-1/2 z-20 flex flex-col gap-6">
+<div class="bg-surface-container/90 backdrop-blur-md p-2 rounded-xl flex flex-col gap-2 border border-outline-variant/10">
+<button class="p-3 bg-accent-orange text-white rounded-lg shadow-lg shadow-accent-orange/20"><span class="material-symbols-outlined">layers</span></button>
+<button class="p-3 text-secondary hover:bg-surface-container-high hover:text-accent-orange rounded-lg transition-colors"><span class="material-symbols-outlined">security</span></button>
+<button class="p-3 text-secondary hover:bg-surface-container-high hover:text-accent-orange rounded-lg transition-colors"><span class="material-symbols-outlined">cloud</span></button>
+<button class="p-3 text-secondary hover:bg-surface-container-high hover:text-accent-orange rounded-lg transition-colors"><span class="material-symbols-outlined">factory</span></button>
+<button class="p-3 text-secondary hover:bg-surface-container-high hover:text-accent-orange rounded-lg transition-colors"><span class="material-symbols-outlined">domain</span></button>
+</div>
+<div class="bg-surface-container/90 backdrop-blur-md p-2 rounded-xl flex flex-col gap-2 border border-outline-variant/10">
+<button class="p-3 text-secondary hover:text-accent-orange rounded-lg transition-colors"><span class="material-symbols-outlined">add</span></button>
+<button class="p-3 text-secondary hover:text-accent-orange rounded-lg transition-colors"><span class="material-symbols-outlined">remove</span></button>
+<div class="h-px bg-outline-variant/20 mx-2"></div>
+<button class="p-3 text-secondary hover:text-accent-orange rounded-lg transition-colors text-[10px] font-mono">3D</button>
+</div>
+</div>
+<!-- Map Hotspots -->
+<div class="absolute top-1/2 left-1/2 w-4 h-4 -translate-x-12 translate-y-8 z-10">
+<div class="absolute inset-0 bg-accent-orange rounded-full animate-ping opacity-40"></div>
+<div class="absolute inset-1 bg-accent-orange rounded-full shadow-[0_0_15px_#ec7609]"></div>
+</div>
+<div class="absolute top-[60%] left-[45%] w-3 h-3 z-10">
+<div class="absolute inset-0 bg-tertiary rounded-full animate-pulse opacity-30"></div>
+<div class="absolute inset-0.5 bg-tertiary rounded-full shadow-[0_0_10px_#8ce7ff]"></div>
+</div>
+<!-- Right Detail Drawer (Closed handle) -->
+<div class="absolute right-0 top-0 bottom-0 w-12 bg-surface-container-low/40 backdrop-blur-sm border-l border-outline-variant/10 z-30 flex flex-col items-center py-6 gap-8">
+<span class="material-symbols-outlined text-secondary hover:text-accent-orange cursor-pointer">chevron_left</span>
+<div class="flex flex-col gap-4">
+<div class="w-1.5 h-1.5 rounded-full bg-error"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-accent-orange"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-secondary"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-tertiary"></div>
+</div>
+<div class="[writing-mode:vertical-lr] text-[10px] font-mono text-secondary uppercase tracking-[0.4em] rotate-180 opacity-50">District Details</div>
+</div>
+<!-- Bottom Intelligence Strip -->
+<div class="absolute bottom-0 left-0 right-12 z-40">
+<div class="flex justify-center -mb-px">
+<div class="bg-surface-container-high px-4 py-1 rounded-t-lg border-x border-t border-outline-variant/20 cursor-pointer">
+<span class="material-symbols-outlined text-sm text-secondary">keyboard_double_arrow_up</span>
+</div>
+</div>
+<div class="bg-surface-container-low/95 backdrop-blur-xl border-t border-outline-variant/10 p-4 h-40 flex flex-col gap-3 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+<div class="flex items-center justify-between border-b border-outline-variant/5 pb-2">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 text-accent-orange text-xs font-mono font-bold uppercase tracking-widest">
+<span class="w-2 h-2 rounded-full bg-accent-orange animate-pulse"></span> Live Feed
+                                </div>
+<div class="h-4 w-px bg-outline-variant/20"></div>
+<div class="text-xs text-secondary hover:text-on-surface transition-colors cursor-pointer">Archive</div>
+<div class="text-xs text-secondary hover:text-on-surface transition-colors cursor-pointer">Predictions</div>
+</div>
+<div class="text-[10px] text-secondary font-mono">System Latency: 42ms | Signal: Stable</div>
+</div>
+<div class="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+<div class="flex-shrink-0 w-80 bg-surface-container p-3 rounded-lg border border-outline-variant/5 hover:bg-surface-bright transition-all cursor-pointer group">
+<div class="flex justify-between items-start mb-2">
+<span class="text-[10px] font-mono text-error-dim uppercase px-1.5 py-0.5 bg-error/10 rounded">Security Critical</span>
+<span class="text-[10px] font-mono text-secondary">14:22:01 IST</span>
+</div>
+<div class="text-sm font-headline font-semibold text-on-surface line-clamp-1">Unusual Transit: Border Sector 4-A</div>
+<div class="flex items-center justify-between mt-2">
+<div class="text-[10px] text-secondary-dim">Confidence: <span class="text-accent-orange">94%</span></div>
+<span class="material-symbols-outlined text-secondary opacity-0 group-hover:opacity-100 text-sm transition-opacity">arrow_forward</span>
+</div>
+</div>
+<div class="flex-shrink-0 w-80 bg-surface-container p-3 rounded-lg border border-outline-variant/5 hover:bg-surface-bright transition-all cursor-pointer group">
+<div class="flex justify-between items-start mb-2">
+<span class="text-[10px] font-mono text-tertiary-dim uppercase px-1.5 py-0.5 bg-tertiary/10 rounded">Grid Alert</span>
+<span class="text-[10px] font-mono text-secondary">14:18:55 IST</span>
+</div>
+<div class="text-sm font-headline font-semibold text-on-surface line-clamp-1">Fluctuation Detected: Mumbai Sub-station B</div>
+<div class="flex items-center justify-between mt-2">
+<div class="text-[10px] text-secondary-dim">Confidence: <span class="text-accent-orange">81%</span></div>
+<span class="material-symbols-outlined text-secondary opacity-0 group-hover:opacity-100 text-sm transition-opacity">arrow_forward</span>
+</div>
+</div>
+<div class="flex-shrink-0 w-80 bg-surface-container p-3 rounded-lg border border-outline-variant/5 hover:bg-surface-bright transition-all cursor-pointer group">
+<div class="flex justify-between items-start mb-2">
+<span class="text-[10px] font-mono text-accent-orange uppercase px-1.5 py-0.5 bg-accent-orange/10 rounded">Policy Update</span>
+<span class="text-[10px] font-mono text-secondary">13:50:20 IST</span>
+</div>
+<div class="text-sm font-headline font-semibold text-on-surface line-clamp-1">New SEZ Regulatory Framework Draft</div>
+<div class="flex items-center justify-between mt-2">
+<div class="text-[10px] text-secondary-dim">Confidence: <span class="text-accent-orange">100%</span></div>
+<span class="material-symbols-outlined text-secondary opacity-0 group-hover:opacity-100 text-sm transition-opacity">arrow_forward</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

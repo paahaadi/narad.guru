@@ -1,2 +1,2 @@
-"narad_app"    "narad_app_password_here"
-"narad_worker" "narad_worker_password_here"
+"narad_app" "narad_app_dev"
+"narad_worker" "narad_worker_dev"

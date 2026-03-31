@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NARAD | Briefings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#ec7609", // Orange accent
+              "surface": "#0B0E15", // Sovereign Midnight base
+              "surface-container": "#0F131D",
+              "surface-container-low": "#0F131D",
+              "surface-container-high": "#18202F",
+              "background": "#0B0E15",
+              "on-surface": "#DCE5FF",
+              "secondary": "#999EAD",
+              "outline-variant": "#3F485D",
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-headline { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #3F485D; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4F5A73; }
+    </style>
+</head>
+<body class="bg-background text-on-surface selection:bg-primary/30 overflow-hidden">
+<!-- Standardized Header -->
+<header class="flex items-center justify-between px-6 w-full sticky top-0 z-50 bg-[#0B0E15] font-manrope text-sm h-14 border-b border-[#3F485D]/30">
+<div class="flex items-center gap-4 min-w-[200px]">
+<span class="font-manrope font-extrabold text-[#DCE5FF] tracking-[0.2em] uppercase">NARAD</span>
+<div class="h-4 w-px bg-[#3F485D]/50"></div>
+<span class="text-[#999EAD] font-medium">Briefings</span>
+</div>
+<div class="flex-grow max-w-2xl px-8">
+<div class="relative flex items-center bg-[#18202F] border border-[#3F485D]/30 px-3 py-1.5 rounded w-full">
+<span class="material-symbols-outlined text-secondary text-sm mr-2">search</span>
+<input class="bg-transparent border-none text-xs focus:ring-0 p-0 text-on-surface placeholder:text-secondary/50 w-full" placeholder="Global Command Search..." type="text"/>
+<span class="text-[10px] text-secondary/30 ml-2">⌘K</span>
+</div>
+</div>
+<div class="flex items-center gap-1 min-w-[200px] justify-end">
+<button class="p-2 text-secondary hover:text-on-surface hover:bg-[#212C43] rounded transition-all">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+<button class="p-2 text-secondary hover:text-on-surface hover:bg-[#212C43] rounded transition-all">
+<span class="material-symbols-outlined text-[20px]">ios_share</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center ml-2 cursor-pointer">
+<span class="text-[10px] font-bold text-primary">JD</span>
+</div>
+</div>
+</header>
+<div class="flex h-[calc(100vh-3.5rem)]">
+<!-- Standardized Sidebar -->
+<aside class="w-16 flex flex-col items-center py-6 z-40 bg-[#0F131D] border-r border-[#3F485D]/30">
+<div class="flex flex-col gap-4 items-center flex-grow">
+<button class="p-2.5 rounded text-secondary hover:text-on-surface hover:bg-[#18202F] transition-all" title="GeoStrat">
+<span class="material-symbols-outlined">public</span>
+</button>
+<button class="p-2.5 rounded text-secondary hover:text-on-surface hover:bg-[#18202F] transition-all" title="PulseBoard">
+<span class="material-symbols-outlined">analytics</span>
+</button>
+<button class="p-2.5 rounded text-secondary hover:text-on-surface hover:bg-[#18202F] transition-all" title="CorpWatch">
+<span class="material-symbols-outlined">business</span>
+</button>
+<button class="p-2.5 rounded text-secondary hover:text-on-surface hover:bg-[#18202F] transition-all" title="LexPulse">
+<span class="material-symbols-outlined">gavel</span>
+</button>
+<button class="p-2.5 rounded text-secondary hover:text-on-surface hover:bg-[#18202F] transition-all" title="Watchlists">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+<button class="p-2.5 rounded text-secondary hover:text-on-surface hover:bg-[#18202F] transition-all" title="Investigations">
+<span class="material-symbols-outlined">search_insights</span>
+</button>
+<button class="p-2.5 rounded bg-primary/10 text-primary transition-all ring-1 ring-primary/20" title="Briefings">
+<span class="material-symbols-outlined">description</span>
+</button>
+</div>
+<div class="mt-auto flex flex-col gap-4 items-center">
+<button class="p-2.5 text-secondary hover:text-on-surface transition-all"><span class="material-symbols-outlined">help_outline</span></button>
+<button class="p-2.5 text-secondary hover:text-on-surface transition-all"><span class="material-symbols-outlined">settings</span></button>
+</div>
+</aside>
+<!-- Main Workspace -->
+<main class="flex-grow flex flex-col overflow-hidden bg-background">
+<!-- Summary Strip -->
+<section class="h-20 shrink-0 flex items-center px-10 gap-10 bg-[#0F131D] border-b border-[#3F485D]/20">
+<div class="flex flex-col">
+<span class="text-[10px] uppercase tracking-widest text-secondary font-bold">Draft Briefings</span>
+<span class="text-xl font-headline font-bold text-on-surface">12</span>
+</div>
+<div class="w-px h-8 bg-[#3F485D]/30"></div>
+<div class="flex flex-col">
+<span class="text-[10px] uppercase tracking-widest text-secondary font-bold">Published Today</span>
+<span class="text-xl font-headline font-bold text-on-surface">04</span>
+</div>
+<div class="w-px h-8 bg-[#3F485D]/30"></div>
+<div class="flex flex-col">
+<span class="text-[10px] uppercase tracking-widest text-secondary font-bold">Scheduled</span>
+<span class="text-xl font-headline font-bold text-on-surface">08</span>
+</div>
+<div class="w-px h-8 bg-[#3F485D]/30"></div>
+<div class="flex flex-col">
+<span class="text-[10px] uppercase tracking-widest text-primary/70 font-bold">Auto-generated</span>
+<span class="text-xl font-headline font-bold text-primary">22</span>
+</div>
+<div class="ml-auto">
+<button class="bg-primary hover:bg-primary/90 text-white px-5 py-2 rounded font-bold text-xs flex items-center gap-2 transition-all shadow-lg shadow-primary/10 active:scale-95">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                        Ready for Briefing
+                    </button>
+</div>
+</section>
+<div class="flex flex-grow overflow-hidden">
+<!-- Left Panel: Briefing Library -->
+<aside class="w-72 bg-[#0F131D] border-r border-[#3F485D]/30 flex flex-col shrink-0">
+<div class="p-6 border-b border-[#3F485D]/10">
+<h2 class="text-[10px] font-black uppercase tracking-[0.15em] text-secondary mb-4">Briefing Library</h2>
+<div class="space-y-1">
+<button class="w-full text-left px-3 py-2.5 rounded bg-[#18202F] text-on-surface flex items-center gap-3 transition-colors border border-primary/20">
+<span class="material-symbols-outlined text-primary text-lg">newspaper</span>
+<span class="text-xs font-semibold">Daily Briefs</span>
+</button>
+<button class="w-full text-left px-3 py-2.5 rounded text-secondary hover:bg-[#18202F] hover:text-on-surface flex items-center gap-3 transition-colors">
+<span class="material-symbols-outlined text-lg">monitoring</span>
+<span class="text-xs font-semibold">Watchlist Digests</span>
+</button>
+<button class="w-full text-left px-3 py-2.5 rounded text-secondary hover:bg-[#18202F] hover:text-on-surface flex items-center gap-3 transition-colors">
+<span class="material-symbols-outlined text-lg">stars</span>
+<span class="text-xs font-semibold">Executive Briefs</span>
+</button>
+<button class="w-full text-left px-3 py-2.5 rounded text-secondary hover:bg-[#18202F] hover:text-on-surface flex items-center gap-3 transition-colors">
+<span class="material-symbols-outlined text-lg">troubleshoot</span>
+<span class="text-xs font-semibold">Investigation Briefs</span>
+</button>
+</div>
+</div>
+<div class="p-6 flex-grow overflow-y-auto">
+<h3 class="text-[10px] font-black uppercase tracking-[0.15em] text-secondary/40 mb-4">Recent Items</h3>
+<div class="space-y-3">
+<div class="p-3 bg-[#18202F]/50 rounded border border-transparent hover:border-[#3F485D]/50 group cursor-pointer transition-all">
+<div class="flex justify-between items-start mb-1">
+<span class="text-[9px] px-1 py-0.5 rounded bg-[#0B0E15] text-primary border border-primary/20 font-bold uppercase">Final</span>
+<span class="text-[9px] text-secondary font-mono">2h ago</span>
+</div>
+<p class="text-[11px] font-bold text-on-surface leading-snug line-clamp-2">Middle East Maritime Security Corridor Analysis v4.2</p>
+</div>
+<div class="p-3 bg-transparent border border-[#3F485D]/20 rounded group cursor-pointer hover:bg-[#18202F]/30 transition-all">
+<div class="flex justify-between items-start mb-1">
+<span class="text-[9px] px-1 py-0.5 rounded bg-[#0B0E15] text-secondary border border-[#3F485D]/30 font-bold uppercase">Draft</span>
+<span class="text-[9px] text-secondary font-mono">5h ago</span>
+</div>
+<p class="text-[11px] font-semibold text-secondary line-clamp-2">Quarterly Cyber-Threat Assessment: Financial Sector</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Center Panel: Intelligence Document Viewer -->
+<section class="flex-grow bg-[#0B0E15] overflow-y-auto">
+<div class="max-w-4xl mx-auto py-12 px-12">
+<!-- Doc Header -->
+<div class="mb-10">
+<div class="flex items-center gap-2 mb-6">
+<span class="bg-red-500/10 text-red-500 px-2 py-0.5 rounded text-[10px] font-black tracking-widest uppercase border border-red-500/20">TOP SECRET</span>
+<span class="text-[#3F485D] text-[10px] font-mono">// NOFORN // ORCON</span>
+</div>
+<h1 class="text-4xl font-headline font-extrabold text-on-surface tracking-tight leading-tight mb-6">Strategic Synthesis: Indo-Pacific Tactical Asset Relocation</h1>
+<div class="flex items-center gap-6 text-[11px] text-secondary uppercase tracking-wider font-semibold">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">person</span>
+<span>Intelligence Unit 07 (NARAD-AI)</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">calendar_today</span>
+<span>Oct 24, 2023 - 08:30Z</span>
+</div>
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-sm">schedule</span>
+<span>Est. Read Time: 12 min</span>
+</div>
+</div>
+</div>
+<!-- Tabs -->
+<div class="flex border-b border-[#3F485D]/20 mb-8">
+<button class="px-6 py-3 text-xs font-bold border-b-2 border-primary text-on-surface tracking-wide uppercase">Summary</button>
+<button class="px-6 py-3 text-xs font-bold border-b-2 border-transparent text-secondary hover:text-on-surface transition-all tracking-wide uppercase">Sections</button>
+<button class="px-6 py-3 text-xs font-bold border-b-2 border-transparent text-secondary hover:text-on-surface transition-all tracking-wide uppercase">Sources</button>
+<button class="px-6 py-3 text-xs font-bold border-b-2 border-transparent text-secondary hover:text-on-surface transition-all tracking-wide uppercase">Distribution</button>
+</div>
+<!-- Content Area -->
+<div class="prose prose-invert max-w-none space-y-10">
+<div class="p-6 bg-[#18202F]/50 rounded border-l-2 border-primary">
+<h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-3">Executive Overview</h3>
+<p class="text-on-surface/90 text-[13px] leading-relaxed italic font-medium">"The recent surge in unconventional vessel movement within the South China Sea indicates a coordinated shift in logistics posture. Analysis suggests a 68% probability of permanent outpost expansion within the next 14 days."</p>
+</div>
+<div class="space-y-6">
+<h2 class="text-xl font-headline font-black text-on-surface flex items-center gap-3">
+<span class="text-primary/50 font-mono text-base">01.</span> Current Posture Analysis
+                                </h2>
+<p class="text-secondary text-[14px] leading-relaxed">Satellite reconnaissance (Source SIG-04) has confirmed the presence of three 'G' Class transport ships currently anchored 12 nautical miles off the coast of the Paracel Islands. This positioning deviates from standard patrol cycles by approximately 180 miles.</p>
+<div class="grid grid-cols-2 gap-4 my-8">
+<div class="aspect-video rounded bg-[#18202F] relative overflow-hidden group border border-[#3F485D]/30">
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 p-4 flex flex-col justify-end">
+<span class="text-[9px] text-primary uppercase font-black tracking-widest mb-1">Asset A-09 Sat-Feed</span>
+<span class="text-[10px] text-secondary font-mono">COORD: 16.5N, 112.3E</span>
+</div>
+<img class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-1000" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDh6UCEONE1rIgkHNdKjxS2rZuHC8CjxDN2fpFjwmQX8QPdEOB1Dg0ezQpLG0I40MSb5HNOE-2Eh_syusM5x70A_0VGHqZRkFtjhB9qm0Dp7SxDmYyNWPFF9R63Mz57HHzL5zBb7CJlbEhDU4Lj6jjprNIyhdD4TAw2n0kITpZ5ZCottQ4GWerjs0zFjo7qbnDlx38rPYo7bw9WXmcl8mtD8zUrB_tV32qgjNyHAtUKDoZMC6n6q5TTmwHTtAQCTKlkpM6N30BGSwQ"/>
+</div>
+<div class="aspect-video rounded bg-[#18202F] relative overflow-hidden group border border-[#3F485D]/30">
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 p-4 flex flex-col justify-end">
+<span class="text-[9px] text-primary uppercase font-black tracking-widest mb-1">Asset SIG-12 Ground Feed</span>
+<span class="text-[10px] text-secondary font-mono">RELIABILITY: 88%</span>
+</div>
+<img class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-1000" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8UkgAzv6vy8mEFr5ki6paMqPWdOOBkpVyDwZiEJPXidhII2L5_2omvLmosteK3ijhw6LMh0POVnOL0PKQD2ep11hKfVu5LvDyPFDSz_3NWsbffEL0xbAfsosQzeKFozRxin40IHkuYQtjnlnzmb7KFBrH-Q-UqVLHeuzTc-geRpg2oPyfIFGIUrwfTUSYS4DJbzYJIBcWBCftZQQHFTUXZsfcL5HP_Seb0sd8cS_7QS8UkWMppbL3NbSbUPu8PMuABfEF83JTDuU"/>
+</div>
+</div>
+</div>
+<div class="space-y-6 pt-6 border-t border-[#3F485D]/10">
+<h2 class="text-xl font-headline font-black text-on-surface flex items-center gap-3">
+<span class="text-primary/50 font-mono text-base">02.</span> AI Predictive Modeling
+                                </h2>
+<div class="bg-gradient-to-br from-[#18202F] to-[#0F131D] border border-primary/20 p-6 rounded relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4 opacity-5">
+<span class="material-symbols-outlined text-8xl text-primary">psychology</span>
+</div>
+<h4 class="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">auto_awesome</span>
+                                        AI Synthesis Insight
+                                    </h4>
+<p class="text-[13px] text-on-surface/90 font-medium leading-relaxed relative z-10">
+                                        "Machine learning model TR-900 identifies a potential 'Pincer Maneuver' if the assets relocate to Sector 7. Synthesis of diplomatic cables suggests this is a leverage play rather than direct aggression. Recommendation: Monitor high-bandwidth communication channels between Regional Command and Central Logistics for the next 48 hours."
+                                    </p>
+<div class="mt-6 flex gap-4">
+<div class="flex items-center gap-1.5 px-2 py-1 bg-primary/10 rounded-sm border border-primary/20">
+<div class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></div>
+<span class="text-[9px] text-primary font-bold uppercase tracking-widest">Confidence: 91.2%</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Right Panel: Briefing AI and Source Controls -->
+<aside class="w-80 bg-[#0F131D] border-l border-[#3F485D]/30 flex flex-col shrink-0">
+<div class="p-6 space-y-8 flex-grow overflow-y-auto">
+<!-- AI Controls -->
+<div>
+<div class="flex items-center justify-between mb-5">
+<h2 class="text-[10px] font-black uppercase tracking-[0.15em] text-secondary">Briefing AI</h2>
+<span class="material-symbols-outlined text-primary text-[16px]">bolt</span>
+</div>
+<div class="space-y-5">
+<div>
+<label class="block text-[9px] font-black text-secondary uppercase tracking-widest mb-2">Audience Selector</label>
+<select class="w-full bg-[#18202F] border border-[#3F485D]/30 rounded text-[11px] py-2 px-3 focus:ring-1 focus:ring-primary/40 text-on-surface">
+<option>Executive Command (Level 5+)</option>
+<option>Field Operational Units</option>
+<option>Strategic Planning Group</option>
+<option>Legislative Oversight</option>
+</select>
+</div>
+<div>
+<label class="block text-[9px] font-black text-secondary uppercase tracking-widest mb-2">Synthesis Tone</label>
+<div class="grid grid-cols-2 gap-2">
+<button class="py-2 text-[9px] font-black rounded border border-primary/50 bg-primary/10 text-primary uppercase">Directive</button>
+<button class="py-2 text-[9px] font-black rounded border border-[#3F485D]/30 text-secondary hover:bg-[#18202F] uppercase">Evidential</button>
+<button class="py-2 text-[9px] font-black rounded border border-[#3F485D]/30 text-secondary hover:bg-[#18202F] uppercase">Predictive</button>
+<button class="py-2 text-[9px] font-black rounded border border-[#3F485D]/30 text-secondary hover:bg-[#18202F] uppercase">Neutral</button>
+</div>
+</div>
+</div>
+</div>
+<div class="h-px bg-[#3F485D]/20"></div>
+<!-- Source Controls -->
+<div>
+<h2 class="text-[10px] font-black uppercase tracking-[0.15em] text-secondary mb-4">Active Sources</h2>
+<div class="space-y-2">
+<div class="flex items-center justify-between p-2 rounded hover:bg-[#18202F] transition-all group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[16px] text-green-500">sensors</span>
+<span class="text-[11px] text-on-surface font-semibold">ELINT-Feed-A1</span>
+</div>
+<button class="opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-xs text-secondary">close</span>
+</button>
+</div>
+<div class="flex items-center justify-between p-2 rounded hover:bg-[#18202F] transition-all group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[16px] text-blue-400">public</span>
+<span class="text-[11px] text-on-surface font-semibold">OSINT-Net-Globe</span>
+</div>
+<button class="opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-xs text-secondary">close</span>
+</button>
+</div>
+<div class="flex items-center justify-between p-2 rounded hover:bg-[#18202F] transition-all group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[16px] text-orange-400">shield</span>
+<span class="text-[11px] text-on-surface font-semibold">Class-IV-Logs</span>
+</div>
+<button class="opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-xs text-secondary">close</span>
+</button>
+</div>
+<button class="w-full mt-2 py-2 border border-dashed border-[#3F485D]/50 rounded text-[9px] font-black text-secondary uppercase tracking-widest hover:border-primary/50 hover:text-primary transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">add</span>
+                                    Link Additional Source
+                                </button>
+</div>
+</div>
+<!-- Collaboration -->
+<div class="pt-2">
+<h2 class="text-[10px] font-black uppercase tracking-[0.15em] text-secondary mb-4">Live Collaboration</h2>
+<div class="flex -space-x-1.5">
+<div class="w-7 h-7 rounded-full border-2 border-[#0F131D] overflow-hidden">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDVh3TUreudGQYrfJPkvMBfubpD_QFzqnkuoFGRLeya7t7P6lngJLidYvWXhFX1RcYg0Q0KlHuxSYoHRR3O4ZZpT5vhas_lpEUhUH9gti2ccZsEotYkUsobaU6ciJtBpjG6rFScPzjvzFo5dAwfemzGgpk8Yl3PK3hpwmhu9Oe4TzVFQNcv3zw4LlAANR98XSsJk5OtMVD6D36M1iXO2xjweqWsQU2hS_qO_WP1kpGBRsy6F5jS-VWhCP5ZIlkZaOPe1v7aicYGjfc"/>
+</div>
+<div class="w-7 h-7 rounded-full border-2 border-[#0F131D] overflow-hidden">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkA8CF969IQ7kZaBau9HEJAfvDOe7Ajjd9B2RDcQswLwij9XNUmfapetFNohm_xjBB2HBmQcsG8onrEPjwJsKnD13f-0TPX26QykQn0B90kw92q2SyaERYpqt-2V1VKuWI1Ijn9OYsuo-YzMXp3PrEN0KqlIQlZZZha9y2bkQenOR9XK7aoBw35Dpt82mAYfJvWSIvAt7NlrTMZVboieoJhRCo4d0dk4WsDuBABhMJJiQUUfX2_P8NO_r1Fnyd0_0dvIYXduSCR9Q"/>
+</div>
+<div class="w-7 h-7 rounded-full border-2 border-[#0F131D] bg-[#18202F] flex items-center justify-center text-[8px] font-black text-secondary">
+                                    +3
+                                </div>
+</div>
+</div>
+</div>
+<!-- Footer Actions -->
+<div class="p-6 bg-[#0B0E15] border-t border-[#3F485D]/30 space-y-3 shrink-0">
+<button class="w-full py-2.5 bg-[#18202F] border border-[#3F485D]/30 rounded text-[10px] font-black text-on-surface tracking-widest uppercase hover:bg-[#212C43] transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+                            Preview Briefing
+                        </button>
+<button class="w-full py-2.5 bg-primary text-white rounded text-[10px] font-black tracking-widest uppercase shadow-lg shadow-primary/10 hover:opacity-90 transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">send</span>
+                            Finalize &amp; Publish
+                        </button>
+</div>
+</aside>
+</div>
+</main>
+</div>
+</body></html>

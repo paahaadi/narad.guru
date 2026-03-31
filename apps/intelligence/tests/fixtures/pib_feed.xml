@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>PIB Releases</title>
+    <item>
+      <title>Cabinet approves resilience mission</title>
+      <description>The Government announced a resilience mission covering infrastructure and disaster readiness.</description>
+      <link>https://pib.gov.in/example-release</link>
+      <guid>pib-example-001</guid>
+      <pubDate>Sun, 29 Mar 2026 08:00:00 GMT</pubDate>
+    </item>
+  </channel>
+</rss>

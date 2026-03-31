@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NARAD | LexPulse Regulatory Intelligence</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "inverse-surface": "#f9f9ff",
+                        "surface-container-highest": "#1c2639",
+                        "error": "#ee7d77",
+                        "primary-dim": "#f5a623",
+                        "primary-fixed": "#ffecd8",
+                        "primary-container": "#b35900",
+                        "error-dim": "#bb5551",
+                        "on-error": "#490106",
+                        "on-surface": "#dce5ff",
+                        "on-secondary-fixed-variant": "#565b69",
+                        "secondary-dim": "#999ead",
+                        "outline-variant": "#3f485d",
+                        "on-background": "#dce5ff",
+                        "surface-variant": "#1c2639",
+                        "outline": "#6c758c",
+                        "surface-tint": "#ec7609",
+                        "surface-container-low": "#0f131d",
+                        "secondary-fixed-dim": "#d0d4e4",
+                        "secondary-fixed": "#dee2f2",
+                        "on-tertiary-fixed": "#003640",
+                        "on-tertiary-container": "#004b58",
+                        "surface": "#0b0e15",
+                        "on-tertiary-fixed-variant": "#005564",
+                        "tertiary-dim": "#40ceed",
+                        "on-primary": "#000000",
+                        "surface-bright": "#212c43",
+                        "tertiary-fixed-dim": "#40ceed",
+                        "background": "#0b0e15",
+                        "on-tertiary": "#005464",
+                        "surface-dim": "#0b0e15",
+                        "surface-container-lowest": "#000000",
+                        "on-secondary": "#1b202c",
+                        "on-surface-variant": "#a2abc4",
+                        "on-secondary-container": "#babfcf",
+                        "on-primary-fixed-variant": "#bd5a00",
+                        "tertiary-container": "#53ddfc",
+                        "on-secondary-fixed": "#3a3f4c",
+                        "on-primary-container": "#ffd8bd",
+                        "primary-fixed-dim": "#ffc398",
+                        "inverse-on-surface": "#52555d",
+                        "tertiary": "#8ce7ff",
+                        "secondary": "#999ead",
+                        "tertiary-fixed": "#53ddfc",
+                        "inverse-primary": "#c45b00",
+                        "secondary-container": "#363b48",
+                        "surface-container-high": "#18202f",
+                        "on-primary-fixed": "#863d00",
+                        "on-error-container": "#ff9993",
+                        "surface-container": "#141a26",
+                        "primary": "#ec7609",
+                        "error-container": "#7f2927"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glass-panel {
+            background: rgba(28, 38, 57, 0.6);
+            backdrop-filter: blur(20px);
+        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #3f485d; border-radius: 10px; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary/30 selection:text-primary min-h-screen flex flex-col overflow-hidden">
+<!-- Standardized Header -->
+<header class="h-16 border-b border-outline-variant/20 bg-[#0B0E15] z-50 flex items-center justify-between px-6 shrink-0">
+<!-- Top-Left Branding -->
+<div class="flex items-center gap-3 w-[240px]">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 bg-primary flex items-center justify-center rounded-sm">
+<span class="material-symbols-outlined text-on-primary text-xl" style="font-variation-settings: 'FILL' 1;">policy</span>
+</div>
+<span class="text-xl font-black text-[#DCE5FF] tracking-widest font-headline">NARAD</span>
+</div>
+<div class="h-6 w-px bg-outline-variant/30 mx-1"></div>
+<span class="text-sm font-bold text-primary font-headline tracking-tight">LexPulse</span>
+</div>
+<!-- Global Command Bar -->
+<div class="flex-1 max-w-2xl">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-secondary text-lg group-focus-within:text-primary transition-colors">psychology</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant/10 rounded-full py-2 pl-12 pr-4 text-sm text-on-surface placeholder:text-outline-variant/50 focus:ring-1 focus:ring-primary focus:border-primary transition-all font-body" placeholder="Ask NARAD... (e.g. 'Summarize aviation mandates')" type="text"/>
+<div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+<span class="text-[10px] font-bold text-outline-variant/50 bg-surface-container-high px-1.5 py-0.5 rounded border border-outline-variant/20">⌘ K</span>
+</div>
+</div>
+</div>
+<!-- Right Side Utility Cluster -->
+<div class="flex items-center justify-end gap-4 w-[240px]">
+<div class="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-sm text-xs font-bold border border-primary/20">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+                AI Mode
+            </div>
+<div class="flex items-center gap-4 text-secondary">
+<span class="material-symbols-outlined hover:text-white cursor-pointer transition-colors">download</span>
+<span class="material-symbols-outlined hover:text-white cursor-pointer transition-colors relative">
+                    notifications
+                    <span class="absolute top-0.5 right-0.5 w-2 h-2 bg-error rounded-full border border-surface"></span>
+</span>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant/30 cursor-pointer">
+<img alt="User Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAAlgW3U_WjjanjuN2YYP4t-o4fXpWl6YNJVeFWwrcncS8rlndJBlp7W9ellaFqcrW8YrBvYjx0OW8oD5vOY_gSxsIqXYJWCHEIchk-aSEwL6fqXWr074gpU1jZxQiFLMYqZxve9gCo6y-izVKYZ4iGz-KNxNE5nsdsv_ELnTQtmuVSOZ3JZSN3tbk6EWK1QlJxNwUz0Jy-Pa6NE2R9Xx9VU5J8cAq7O_4wCKZXKOhvShfBxiEFRvYbBLtkRMbWu8fjxwtwbLBn1-M"/>
+</div>
+</div>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<!-- Standardized Sidebar -->
+<aside class="w-20 hover:w-64 transition-all duration-300 ease-in-out border-r border-outline-variant/10 bg-[#0F131D] flex flex-col z-40 group shrink-0">
+<div class="flex flex-col items-center group-hover:items-start px-4 py-6 overflow-hidden h-full">
+<nav class="flex flex-col gap-1 w-full">
+<div class="flex items-center gap-4 p-3 rounded-sm text-[#999EAD] hover:text-[#DCE5FF] hover:bg-[#18202F] transition-colors cursor-pointer group/item">
+<span class="material-symbols-outlined">public</span>
+<span class="opacity-0 group-hover:opacity-100 font-headline font-bold tracking-tight text-sm whitespace-nowrap">GeoStrat</span>
+</div>
+<div class="flex items-center gap-4 p-3 rounded-sm text-[#999EAD] hover:text-[#DCE5FF] hover:bg-[#18202F] transition-colors cursor-pointer group/item">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="opacity-0 group-hover:opacity-100 font-headline font-bold tracking-tight text-sm whitespace-nowrap">PulseBoard</span>
+</div>
+<div class="flex items-center gap-4 p-3 rounded-sm text-[#999EAD] hover:text-[#DCE5FF] hover:bg-[#18202F] transition-colors cursor-pointer group/item">
+<span class="material-symbols-outlined">business_center</span>
+<span class="opacity-0 group-hover:opacity-100 font-headline font-bold tracking-tight text-sm whitespace-nowrap">CorpWatch</span>
+</div>
+<!-- ACTIVE TAB: LexPulse -->
+<div class="flex items-center gap-4 p-3 rounded-sm bg-[#1C2639] text-primary border-l-2 border-primary transition-colors cursor-pointer group/item">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">gavel</span>
+<span class="opacity-0 group-hover:opacity-100 font-headline font-bold tracking-tight text-sm whitespace-nowrap">LexPulse</span>
+</div>
+<div class="flex items-center gap-4 p-3 rounded-sm text-[#999EAD] hover:text-[#DCE5FF] hover:bg-[#18202F] transition-colors cursor-pointer group/item">
+<span class="material-symbols-outlined">visibility</span>
+<span class="opacity-0 group-hover:opacity-100 font-headline font-bold tracking-tight text-sm whitespace-nowrap">Watchlists</span>
+</div>
+<div class="flex items-center gap-4 p-3 rounded-sm text-[#999EAD] hover:text-[#DCE5FF] hover:bg-[#18202F] transition-colors cursor-pointer group/item">
+<span class="material-symbols-outlined">troubleshoot</span>
+<span class="opacity-0 group-hover:opacity-100 font-headline font-bold tracking-tight text-sm whitespace-nowrap">Investigations</span>
+</div>
+<div class="flex items-center gap-4 p-3 rounded-sm text-[#999EAD] hover:text-[#DCE5FF] hover:bg-[#18202F] transition-colors cursor-pointer group/item">
+<span class="material-symbols-outlined">description</span>
+<span class="opacity-0 group-hover:opacity-100 font-headline font-bold tracking-tight text-sm whitespace-nowrap">Briefings</span>
+</div>
+</nav>
+<div class="mt-auto flex flex-col gap-1 w-full pt-6 border-t border-outline-variant/10">
+<div class="flex items-center gap-4 p-3 rounded-sm text-[#999EAD] hover:text-[#DCE5FF] hover:bg-[#18202F] transition-colors cursor-pointer group/item">
+<span class="material-symbols-outlined">settings</span>
+<span class="opacity-0 group-hover:opacity-100 font-headline font-bold tracking-tight text-sm whitespace-nowrap">Settings</span>
+</div>
+<div class="flex items-center gap-4 p-3 rounded-sm text-primary transition-colors cursor-pointer group/item">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">bolt</span>
+<span class="opacity-0 group-hover:opacity-100 font-headline font-bold tracking-tight text-sm whitespace-nowrap">System Online</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Workspace -->
+<main class="flex-1 flex flex-col overflow-y-auto bg-surface-dim">
+<div class="px-8 py-10 max-w-7xl mx-auto w-full space-y-10">
+<!-- AI Query Area -->
+<section class="w-full">
+<div class="relative group">
+<div class="absolute inset-0 bg-primary/5 blur-3xl rounded-full scale-90 group-focus-within:scale-105 transition-transform duration-500"></div>
+<div class="relative glass-panel p-1 rounded-lg border border-outline-variant/20 shadow-2xl">
+<div class="flex items-center bg-surface-container-lowest/80 rounded-md px-6 py-5">
+<span class="material-symbols-outlined text-primary mr-4 text-3xl">psychology</span>
+<input class="flex-1 bg-transparent border-none text-on-surface text-xl font-headline focus:ring-0 placeholder:text-outline-variant/50" placeholder="Ask about regulations, gazette notifications..." type="text" value="Summarize recent aviation-related notifications in the SE Asia region"/>
+<button class="bg-gradient-to-br from-[#ec7609] to-[#b35900] px-6 py-2.5 rounded-sm flex items-center gap-2 hover:brightness-110 transition-all active:scale-95 shadow-lg shadow-primary/20">
+<span class="font-headline font-bold text-on-primary uppercase">Query</span>
+<span class="material-symbols-outlined text-on-primary text-sm">send</span>
+</button>
+</div>
+</div>
+</div>
+<div class="flex gap-4 mt-4 px-4 overflow-x-auto no-scrollbar">
+<span class="text-[10px] uppercase tracking-widest text-secondary font-bold flex items-center whitespace-nowrap">Suggested:</span>
+<button class="text-xs bg-surface-container-high px-3 py-1 rounded-full text-secondary-dim hover:text-primary transition-colors whitespace-nowrap">Maritime Law Updates</button>
+<button class="text-xs bg-surface-container-high px-3 py-1 rounded-full text-secondary-dim hover:text-primary transition-colors whitespace-nowrap">EU Green Taxonomy</button>
+<button class="text-xs bg-surface-container-high px-3 py-1 rounded-full text-secondary-dim hover:text-primary transition-colors whitespace-nowrap">Digital Services Act Compliance</button>
+</div>
+</section>
+<!-- Content Grid -->
+<div class="grid grid-cols-12 gap-8 items-start">
+<!-- Left Column: Regulatory Watchlists -->
+<aside class="col-span-12 lg:col-span-3 space-y-6">
+<div class="space-y-4">
+<h3 class="text-xs font-black tracking-widest text-primary-fixed-dim uppercase flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">filter_list</span>
+                                Active Watchlists
+                            </h3>
+<div class="space-y-2">
+<div class="p-4 bg-surface-container-low rounded-sm hover:bg-surface-container transition-colors group cursor-pointer border-l-2 border-primary">
+<div class="flex justify-between items-start mb-2">
+<span class="text-xs font-bold font-headline text-on-surface">Min. of Civil Aviation</span>
+<span class="px-1.5 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold">4 NEW</span>
+</div>
+<p class="text-[11px] text-secondary leading-relaxed">Monitoring Gazette Series A, Section 3(ii) for flight safety protocols.</p>
+</div>
+<div class="p-4 bg-surface-container-low rounded-sm hover:bg-surface-container transition-colors group cursor-pointer border-l-2 border-transparent">
+<div class="flex justify-between items-start mb-2">
+<span class="text-xs font-bold font-headline text-on-surface">Energy &amp; Renewables</span>
+<span class="px-1.5 py-0.5 rounded-full bg-outline-variant/20 text-secondary text-[10px] font-bold">IDLE</span>
+</div>
+<p class="text-[11px] text-secondary leading-relaxed">Cross-border power transmission policy and tariff revisions.</p>
+</div>
+<div class="p-4 bg-surface-container-low rounded-sm hover:bg-surface-container transition-colors group cursor-pointer border-l-2 border-transparent">
+<div class="flex justify-between items-start mb-2">
+<span class="text-xs font-bold font-headline text-on-surface">Finance (FDI Desk)</span>
+<span class="px-1.5 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold">1 NEW</span>
+</div>
+<p class="text-[11px] text-secondary leading-relaxed">FEMA compliance regarding tech-infrastructure acquisition.</p>
+</div>
+</div>
+<button class="w-full py-2 border border-outline-variant/30 text-secondary text-xs font-bold hover:bg-surface-container-high hover:text-primary transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">add</span>
+                                CONFIGURE WATCHLIST
+                            </button>
+</div>
+<div class="p-5 bg-gradient-to-br from-primary/10 to-transparent border border-primary/10 rounded-sm">
+<div class="flex items-center gap-2 mb-3">
+<span class="material-symbols-outlined text-primary text-lg">insights</span>
+<h4 class="text-xs font-bold text-on-surface font-headline uppercase tracking-tighter">AI Sector Forecast</h4>
+</div>
+<p class="text-xs text-secondary-dim leading-relaxed mb-4">A 42% increase in regulatory friction is projected for the <span class="text-primary font-bold">Semiconductor</span> sector by Q3.</p>
+<div class="w-full h-1 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-3/4"></div>
+</div>
+</div>
+</aside>
+<!-- Center Column: Answer/Regulatory Feed -->
+<article class="col-span-12 lg:col-span-6 space-y-8">
+<div class="bg-surface-container rounded-sm p-8 shadow-sm relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4">
+<span class="material-symbols-outlined text-outline-variant/30 text-4xl select-none">verified_user</span>
+</div>
+<header class="mb-10">
+<div class="flex items-center gap-3 text-[10px] font-black tracking-widest text-primary uppercase mb-4">
+<span class="material-symbols-outlined text-sm">auto_awesome</span>
+                                    NARAD Intelligence Synthesis • 24m ago
+                                </div>
+<h2 class="text-3xl font-headline font-extrabold text-[#DCE5FF] tracking-tight leading-tight">
+                                    Regulatory Shift: Southeast Asian Civil Aviation Protocols (Q2-2024)
+                                </h2>
+</header>
+<!-- AI Answer Content -->
+<div class="space-y-10">
+<div class="space-y-4">
+<h3 class="text-sm font-bold text-primary-dim uppercase tracking-widest border-l-2 border-primary-dim pl-4">Direct Answer</h3>
+<p class="text-base text-on-surface font-body leading-relaxed">
+                                        Recent notifications from the CAAS (Singapore) and DGCA (India) indicate a unified move toward mandatory sustainable aviation fuel (SAF) blending and updated non-scheduled flight permits for private operators. The core shift centers on a 2.5% blending requirement by 2026.
+                                    </p>
+</div>
+<div class="grid grid-cols-2 gap-8">
+<div class="space-y-4">
+<h3 class="text-sm font-bold text-primary-dim uppercase tracking-widest border-l-2 border-primary-dim pl-4">What Changed</h3>
+<ul class="space-y-3 text-sm text-secondary-dim">
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-primary-dim text-sm mt-0.5">adjust</span>
+                                                SAF blending mandate introduced (Ref: G.S.R. 202(E)).
+                                            </li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-primary-dim text-sm mt-0.5">adjust</span>
+                                                Foreign carrier ground-handling deregulation.
+                                            </li>
+</ul>
+</div>
+<div class="space-y-4">
+<h3 class="text-sm font-bold text-primary-dim uppercase tracking-widest border-l-2 border-primary-dim pl-4">Why It Matters</h3>
+<ul class="space-y-3 text-sm text-secondary-dim">
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-error-dim text-sm mt-0.5">warning</span>
+                                                Operating costs projected to rise by 4.2%.
+                                            </li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-primary-dim text-sm mt-0.5">trending_up</span>
+                                                Infrastructure opportunities in SAF storage facilities.
+                                            </li>
+</ul>
+</div>
+</div>
+<div class="space-y-4">
+<h3 class="text-sm font-bold text-primary-dim uppercase tracking-widest border-l-2 border-primary-dim pl-4">Affected Sectors</h3>
+<div class="flex flex-wrap gap-3">
+<span class="px-4 py-2 bg-surface-container-highest rounded-sm text-xs font-bold text-on-surface">Commercial Airlines</span>
+<span class="px-4 py-2 bg-surface-container-highest rounded-sm text-xs font-bold text-on-surface">Refinery Operations</span>
+<span class="px-4 py-2 bg-surface-container-highest rounded-sm text-xs font-bold text-on-surface">Private Charters</span>
+<span class="px-4 py-2 bg-surface-container-highest rounded-sm text-xs font-bold text-on-surface">Airport Infrastructure</span>
+</div>
+</div>
+</div>
+<div class="mt-12 pt-6 border-t border-outline-variant/10 flex items-center justify-between">
+<div class="flex gap-4">
+<button class="flex items-center gap-2 text-[10px] font-bold text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-base">share</span>
+                                        EXPORT BRIEF
+                                    </button>
+<button class="flex items-center gap-2 text-[10px] font-bold text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-base">bookmark</span>
+                                        SAVE TO WORKSPACE
+                                    </button>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-[10px] text-secondary">Is this analysis accurate?</span>
+<span class="material-symbols-outlined text-base text-secondary hover:text-primary cursor-pointer">thumb_up</span>
+<span class="material-symbols-outlined text-base text-secondary hover:text-error cursor-pointer">thumb_down</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Right Column: Evidence & Source Pack -->
+<aside class="col-span-12 lg:col-span-3 space-y-6">
+<h3 class="text-xs font-black tracking-widest text-primary-fixed-dim uppercase flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">inventory_2</span>
+                            Evidence &amp; Source Pack
+                        </h3>
+<div class="space-y-4">
+<div class="bg-surface-container-lowest border border-outline-variant/20 rounded-sm p-4 hover:border-primary/30 transition-all group">
+<div class="flex items-center gap-3 mb-3">
+<div class="w-8 h-8 bg-surface-container-highest flex items-center justify-center rounded-sm">
+<span class="material-symbols-outlined text-primary-dim text-lg">gavel</span>
+</div>
+<div>
+<p class="text-[10px] font-black text-secondary leading-none uppercase">Primary Gazette</p>
+<p class="text-[11px] font-bold text-on-surface truncate max-w-[140px]">Notification G.S.R. 202</p>
+</div>
+</div>
+<div class="bg-surface-container-low p-2 rounded-sm mb-3">
+<p class="text-[10px] text-secondary italic leading-tight">"...the Central Government hereby makes the following rules to further amend the Aircraft Rules, 1937..."</p>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<span class="text-[9px] font-bold text-emerald-400">98% TRUST</span>
+</div>
+<span class="material-symbols-outlined text-secondary text-sm group-hover:text-primary transition-colors cursor-pointer">open_in_new</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant/20 rounded-sm p-4 hover:border-primary/30 transition-all group">
+<div class="flex items-center gap-3 mb-3">
+<div class="w-8 h-8 bg-surface-container-highest flex items-center justify-center rounded-sm">
+<span class="material-symbols-outlined text-primary-dim text-lg">mic_external_on</span>
+</div>
+<div>
+<p class="text-[10px] font-black text-secondary leading-none uppercase">Hansard Transcript</p>
+<p class="text-[11px] font-bold text-on-surface truncate max-w-[140px]">Parliamentary Session 14-A</p>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<span class="text-[9px] font-bold text-emerald-400">92% TRUST</span>
+</div>
+<span class="material-symbols-outlined text-secondary text-sm group-hover:text-primary transition-colors cursor-pointer">open_in_new</span>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-high p-4 rounded-sm border border-outline-variant/10">
+<p class="text-[10px] font-black text-secondary-dim uppercase tracking-tighter mb-2">Workspace Analytics</p>
+<div class="text-2xl font-headline font-black text-on-surface mb-1">2,419</div>
+<p class="text-[10px] text-secondary leading-tight">Regulatory cross-references analyzed in this query cycle.</p>
+<div class="mt-4 flex -space-x-2">
+<div class="w-6 h-6 rounded-full border border-surface bg-primary-container"></div>
+<div class="w-6 h-6 rounded-full border border-surface bg-tertiary-container"></div>
+<div class="w-6 h-6 rounded-full border border-surface bg-secondary-container"></div>
+<div class="w-6 h-6 rounded-full border border-surface bg-outline-variant flex items-center justify-center text-[8px] font-bold">+12</div>
+</div>
+</div>
+</aside>
+</div>
+</div>
+</main>
+</div>
+</body></html>

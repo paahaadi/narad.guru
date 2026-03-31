@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NARAD | Watchlists</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ec7609",
+                        "surface": "#080a0f",
+                        "surface-container": "#0f1218",
+                        "surface-container-low": "#0b0e14",
+                        "surface-container-high": "#161b22",
+                        "on-surface": "#eee3df",
+                        "secondary": "#999EAD",
+                        "outline": "#3F485D",
+                        "error": "#ed7f64",
+                        "error-container": "#7e2b17"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body {
+            background-color: #080a0f;
+            color: #eee3df;
+            font-family: 'Inter', sans-serif;
+        }
+        .intelligence-glow {
+            box-shadow: 0 0 40px rgba(236, 118, 9, 0.03);
+        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #3F485D33; border-radius: 10px; }
+        .nav-item-active {
+            color: #ec7609;
+            background: rgba(236, 118, 9, 0.08);
+            border-left: 2px solid #ec7609;
+        }
+    </style>
+</head>
+<body class="overflow-hidden bg-surface">
+<!-- Standardized Header -->
+<header class="bg-[#0B0E15] text-[#ec7609] font-manrope text-sm tracking-tight w-full h-16 border-b border-outline/15 flex items-center justify-between px-6 sticky top-0 z-50">
+<div class="flex items-center gap-12">
+<div class="flex items-center">
+<span class="font-manrope font-extrabold text-[#DCE5FF] tracking-widest uppercase text-xl">NARAD</span>
+<span class="text-outline/40 mx-3 text-lg">|</span>
+<span class="text-[#ec7609] font-light tracking-wide text-lg uppercase">Watchlists</span>
+</div>
+<!-- Standardized Header Nav -->
+<nav class="hidden xl:flex items-center h-16 space-x-8">
+<a class="text-secondary hover:text-on-surface transition-colors duration-200 text-xs font-bold uppercase tracking-widest" href="#">Dashboard</a>
+<a class="text-[#ec7609] border-b-2 border-[#ec7609] h-16 flex items-center text-xs font-bold uppercase tracking-widest" href="#">Watchlists</a>
+<a class="text-secondary hover:text-on-surface transition-colors duration-200 text-xs font-bold uppercase tracking-widest" href="#">Investigations</a>
+<a class="text-secondary hover:text-on-surface transition-colors duration-200 text-xs font-bold uppercase tracking-widest" href="#">Briefings</a>
+</nav>
+</div>
+<!-- Global Search Bar Central -->
+<div class="flex-1 max-w-md mx-8 relative hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-sm">search</span>
+<input class="bg-surface-container-low border border-outline/20 text-xs rounded-lg pl-9 pr-4 py-2 w-full focus:ring-1 focus:ring-primary/40 text-on-surface placeholder-secondary/50" placeholder="Global Command Search..." type="text"/>
+</div>
+<!-- Utility Cluster Top-Right -->
+<div class="flex items-center gap-4">
+<button class="p-2 text-secondary hover:text-on-surface hover:bg-surface-container transition-colors duration-200 rounded-lg"><span class="material-symbols-outlined">notifications</span></button>
+<button class="p-2 text-secondary hover:text-on-surface hover:bg-surface-container transition-colors duration-200 rounded-lg"><span class="material-symbols-outlined">ios_share</span></button>
+<button class="p-2 text-secondary hover:text-on-surface hover:bg-surface-container transition-colors duration-200 rounded-lg ml-2"><span class="material-symbols-outlined text-3xl">account_circle</span></button>
+</div>
+</header>
+<div class="flex h-[calc(100vh-4rem)] overflow-hidden">
+<!-- Standardized Sidebar -->
+<aside class="bg-[#0F131D] text-secondary font-manrope text-[10px] font-bold uppercase tracking-widest w-24 flex flex-col border-r border-outline/15 py-8 z-40">
+<div class="flex flex-col items-center space-y-6 flex-1">
+<div class="group flex flex-col items-center gap-1 cursor-pointer w-full">
+<div class="p-3 rounded-xl group-hover:text-on-surface transition-all duration-200">
+<span class="material-symbols-outlined">public</span>
+</div>
+<span class="scale-75 opacity-60">GeoStrat</span>
+</div>
+<div class="group flex flex-col items-center gap-1 cursor-pointer w-full">
+<div class="p-3 rounded-xl group-hover:text-on-surface transition-all duration-200">
+<span class="material-symbols-outlined">analytics</span>
+</div>
+<span class="scale-75 opacity-60">PulseBoard</span>
+</div>
+<div class="group flex flex-col items-center gap-1 cursor-pointer w-full">
+<div class="p-3 rounded-xl group-hover:text-on-surface transition-all duration-200">
+<span class="material-symbols-outlined">corporate_fare</span>
+</div>
+<span class="scale-75 opacity-60">CorpWatch</span>
+</div>
+<div class="group flex flex-col items-center gap-1 cursor-pointer w-full">
+<div class="p-3 rounded-xl group-hover:text-on-surface transition-all duration-200">
+<span class="material-symbols-outlined">gavel</span>
+</div>
+<span class="scale-75 opacity-60">LexPulse</span>
+</div>
+<div class="group flex flex-col items-center gap-1 cursor-pointer w-full nav-item-active">
+<div class="p-3 rounded-xl text-primary">
+<span class="material-symbols-outlined">visibility</span>
+</div>
+<span class="scale-75 text-primary">Watchlists</span>
+</div>
+<div class="group flex flex-col items-center gap-1 cursor-pointer w-full">
+<div class="p-3 rounded-xl group-hover:text-on-surface transition-all duration-200">
+<span class="material-symbols-outlined">search_insights</span>
+</div>
+<span class="scale-75 opacity-60">Investigations</span>
+</div>
+<div class="group flex flex-col items-center gap-1 cursor-pointer w-full">
+<div class="p-3 rounded-xl group-hover:text-on-surface transition-all duration-200">
+<span class="material-symbols-outlined">description</span>
+</div>
+<span class="scale-75 opacity-60">Briefings</span>
+</div>
+</div>
+<div class="flex flex-col items-center space-y-4 pb-8">
+<button class="text-secondary hover:text-on-surface p-2 rounded-xl transition-all duration-200"><span class="material-symbols-outlined text-xl">help_outline</span></button>
+<button class="text-secondary hover:text-on-surface p-2 rounded-xl transition-all duration-200"><span class="material-symbols-outlined text-xl">settings</span></button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col bg-surface overflow-hidden">
+<!-- Top Summary Strip -->
+<section class="grid grid-cols-5 gap-px bg-outline/10 border-b border-outline/15">
+<div class="bg-surface-container-low p-5 flex flex-col">
+<span class="text-[10px] text-secondary tracking-widest uppercase font-bold mb-1">Total Watchlists</span>
+<span class="text-2xl font-manrope font-extrabold text-primary">142</span>
+<div class="flex items-center gap-1 mt-2 text-[10px] text-[#8CE7FF]">
+<span class="material-symbols-outlined text-xs">trending_up</span>
+<span>+4 NEW THIS WEEK</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-5 flex flex-col">
+<span class="text-[10px] text-secondary tracking-widest uppercase font-bold mb-1">Alerts Triggered</span>
+<span class="text-2xl font-manrope font-extrabold text-error">2,841</span>
+<div class="flex items-center gap-1 mt-2 text-[10px] text-error">
+<span class="material-symbols-outlined text-xs">warning</span>
+<span>12% INCREASE</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-5 flex flex-col">
+<span class="text-[10px] text-secondary tracking-widest uppercase font-bold mb-1">High Priority Changes</span>
+<span class="text-2xl font-manrope font-extrabold text-on-surface">67</span>
+<div class="flex items-center gap-1 mt-2 text-[10px] text-secondary">
+<span class="material-symbols-outlined text-xs">schedule</span>
+<span>LAST 24 HOURS</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-5 flex flex-col">
+<span class="text-[10px] text-secondary tracking-widest uppercase font-bold mb-1">New Regulatory Hits</span>
+<span class="text-2xl font-manrope font-extrabold text-[#A855F7]">12</span>
+<div class="flex items-center gap-1 mt-2 text-[10px] text-[#A855F7]">
+<span class="material-symbols-outlined text-xs">security</span>
+<span>AML/KYC UPDATES</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-5 flex flex-col">
+<span class="text-[10px] text-secondary tracking-widest uppercase font-bold mb-1">Entity Watch Changes</span>
+<span class="text-2xl font-manrope font-extrabold text-secondary">528</span>
+<div class="flex items-center gap-1 mt-2 text-[10px] text-secondary">
+<span class="material-symbols-outlined text-xs">sync</span>
+<span>AUTOMATED SYNC</span>
+</div>
+</div>
+</section>
+<div class="flex flex-1 overflow-hidden">
+<!-- Left Panel: Directory -->
+<nav class="w-64 bg-surface-container-low border-r border-outline/15 flex flex-col">
+<div class="p-6">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-xs font-bold text-primary tracking-widest uppercase">Directory</h3>
+<button class="text-secondary hover:text-on-surface"><span class="material-symbols-outlined text-sm">add_box</span></button>
+</div>
+<div class="space-y-1">
+<button class="w-full flex items-center gap-3 px-3 py-2 bg-primary/10 text-primary rounded-lg text-sm transition-colors group">
+<span class="material-symbols-outlined text-lg">folder_shared</span>
+<span class="flex-1 text-left font-medium">My Watchlists</span>
+<span class="text-[10px] opacity-60">12</span>
+</button>
+<button class="w-full flex items-center gap-3 px-3 py-2 text-secondary hover:bg-surface-container hover:text-on-surface rounded-lg text-sm transition-colors group">
+<span class="material-symbols-outlined text-lg">groups</span>
+<span class="flex-1 text-left font-medium">Team Folders</span>
+<span class="text-[10px] opacity-60">5</span>
+</button>
+<button class="w-full flex items-center gap-3 px-3 py-2 text-secondary hover:bg-surface-container hover:text-on-surface rounded-lg text-sm transition-colors group">
+<span class="material-symbols-outlined text-lg">public</span>
+<span class="flex-1 text-left font-medium">Geography</span>
+<span class="text-[10px] opacity-60">8</span>
+</button>
+<button class="w-full flex items-center gap-3 px-3 py-2 text-secondary hover:bg-surface-container hover:text-on-surface rounded-lg text-sm transition-colors group">
+<span class="material-symbols-outlined text-lg">settings_input_component</span>
+<span class="flex-1 text-left font-medium">Infrastructure</span>
+<span class="text-[10px] opacity-60">22</span>
+</button>
+</div>
+<div class="mt-8">
+<h4 class="text-[10px] font-bold text-secondary tracking-widest uppercase mb-4">Priority Lists</h4>
+<div class="space-y-4">
+<div class="flex items-start gap-3">
+<div class="w-1.5 h-1.5 rounded-full bg-error mt-1.5 shadow-[0_0_5px_#ed7f64]"></div>
+<div class="flex flex-col">
+<span class="text-xs font-medium text-on-surface">Red Sea Logistics</span>
+<span class="text-[10px] text-secondary">High Volatility Detected</span>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<div class="w-1.5 h-1.5 rounded-full bg-[#A855F7] mt-1.5 shadow-[0_0_5px_#A855F7]"></div>
+<div class="flex flex-col">
+<span class="text-xs font-medium text-on-surface">Critical Semi-mats</span>
+<span class="text-[10px] text-secondary">New Regulatory Hit</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</nav>
+<!-- Center Panel: Detailed View -->
+<section class="flex-1 bg-surface overflow-y-auto intelligence-glow relative">
+<div class="p-8">
+<div class="flex items-start justify-between mb-8">
+<div>
+<div class="flex items-center gap-3 mb-2">
+<h1 class="text-2xl font-manrope font-extrabold text-on-surface">Global Energy Supply Chain</h1>
+<span class="px-2 py-0.5 bg-error-container/20 text-error text-[10px] font-bold tracking-tighter uppercase border border-error/20 rounded">Critical Watch</span>
+</div>
+<p class="text-secondary text-sm max-w-xl">Monitoring 452 entities across maritime, pipeline, and refinement sectors with emphasis on EMEA/APAC transit corridors.</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="bg-surface-container-high hover:bg-surface-container text-on-surface px-4 py-2 text-xs font-bold rounded flex items-center gap-2 border border-outline/20 transition-all">
+<span class="material-symbols-outlined text-sm">ios_share</span> Export
+                                </button>
+<button class="bg-gradient-to-br from-primary to-[#bf5f07] text-white px-4 py-2 text-xs font-bold rounded flex items-center gap-2 shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-sm">settings</span> Configure Rules
+                                </button>
+</div>
+</div>
+<!-- Main Content Tabs -->
+<div class="border-b border-outline/15 mb-8 flex items-center gap-8">
+<button class="pb-4 border-b-2 border-primary text-on-surface text-sm font-bold">Overview</button>
+<button class="pb-4 border-b-2 border-transparent text-secondary hover:text-on-surface text-sm font-medium transition-colors">Changes <span class="ml-1 text-[10px] bg-surface-container px-1.5 py-0.5 rounded text-primary">14</span></button>
+<button class="pb-4 border-b-2 border-transparent text-secondary hover:text-on-surface text-sm font-medium transition-colors">Tracked Items</button>
+<button class="pb-4 border-b-2 border-transparent text-secondary hover:text-on-surface text-sm font-medium transition-colors">Alerts</button>
+<button class="pb-4 border-b-2 border-transparent text-secondary hover:text-on-surface text-sm font-medium transition-colors">Rules</button>
+<button class="pb-4 border-b-2 border-transparent text-secondary hover:text-on-surface text-sm font-medium transition-colors">History</button>
+</div>
+<!-- Detailed Bento Grid Section -->
+<div class="grid grid-cols-12 gap-6">
+<!-- Large Map Card -->
+<div class="col-span-8 bg-surface-container-low rounded-xl border border-outline/15 overflow-hidden flex flex-col">
+<div class="p-4 border-b border-outline/10 flex items-center justify-between">
+<h3 class="text-xs font-bold text-secondary tracking-widest uppercase">Geographic Concentration</h3>
+<span class="text-[10px] text-secondary">ACTIVE HOTSPOTS: 3</span>
+</div>
+<div class="relative flex-1 min-h-[320px] bg-surface-container-high flex items-center justify-center">
+<img class="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-screen" data-alt="abstract stylized world map with glowing orange hotspots over dark blue oceanic background, high technical detail digital cartography" data-location="Global" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWUYo2OQta7jLO29ZPEshOfB8RtSjnQu1wK_6i8CCJLLryOEDf3V-hv_TCan2_iN7r7ua2EIT69B1UerSnLxh6RDeWecT8I66ow6RNpYr0aQesj7WvWlKPcECo5oEffr5VqXgRsXwxMgIlk4EjuiMqwezZvxrcqs1YlvuYChNZiD-HA_SsHffWd0Sm5qZWcyBGCVNIGrXKDNU_iRGD8po29h3IhWfW3DmZSI1S78uZoSJA-WAASarLUbU-C9TByQapfGgI54VuPWE"/>
+<div class="relative z-10 flex flex-col items-center">
+<div class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center border border-primary/50 animate-pulse mb-2">
+<div class="w-4 h-4 bg-primary rounded-full"></div>
+</div>
+<span class="text-[10px] font-bold text-primary tracking-widest">STRAIT OF HORMUZ</span>
+</div>
+</div>
+</div>
+<!-- Alert Stream Card -->
+<div class="col-span-4 bg-surface-container rounded-xl border border-outline/15 flex flex-col">
+<div class="p-4 border-b border-outline/10">
+<h3 class="text-xs font-bold text-secondary tracking-widest uppercase">Live Alert Stream</h3>
+</div>
+<div class="p-4 flex-1 space-y-4 overflow-y-auto max-h-[350px]">
+<div class="flex gap-3">
+<div class="mt-1 w-2 h-2 rounded-full bg-error"></div>
+<div>
+<p class="text-xs font-bold text-on-surface">Vessel Departure Anomaly</p>
+<p class="text-[10px] text-secondary leading-relaxed">LNG Carrier 'Arctic Star' exited scheduled route near Malacca.</p>
+<span class="text-[9px] text-error font-mono mt-1 block uppercase tracking-wider">14:02 UTC</span>
+</div>
+</div>
+<div class="flex gap-3">
+<div class="mt-1 w-2 h-2 rounded-full bg-[#A855F7]"></div>
+<div>
+<p class="text-xs font-bold text-on-surface">Sanction Warning</p>
+<p class="text-[10px] text-secondary leading-relaxed">Oyston Refinery Group added to OFAC speculative list.</p>
+<span class="text-[9px] text-[#A855F7] font-mono mt-1 block uppercase tracking-wider">12:45 UTC</span>
+</div>
+</div>
+<div class="flex gap-3">
+<div class="mt-1 w-2 h-2 rounded-full bg-primary"></div>
+<div>
+<p class="text-xs font-bold text-on-surface">Pricing Threshold Breached</p>
+<p class="text-[10px] text-secondary leading-relaxed">Brent Crude Futures (Aug) exceeded watchlist cap of $88.50.</p>
+<span class="text-[9px] text-primary font-mono mt-1 block uppercase tracking-wider">11:12 UTC</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Metric Cards -->
+<div class="col-span-12 grid grid-cols-4 gap-6">
+<div class="bg-surface-container-low p-6 rounded-xl border border-outline/15">
+<span class="text-[10px] font-bold text-secondary uppercase tracking-widest mb-4 block">Risk Velocity</span>
+<div class="h-12 flex items-end gap-1 mb-4">
+<div class="flex-1 bg-outline/20 h-1/4 rounded-sm"></div>
+<div class="flex-1 bg-outline/20 h-2/4 rounded-sm"></div>
+<div class="flex-1 bg-primary/60 h-3/4 rounded-sm"></div>
+<div class="flex-1 bg-primary h-full rounded-sm"></div>
+<div class="flex-1 bg-error h-4/5 rounded-sm"></div>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-xl font-bold text-on-surface">Elevated</span>
+<span class="text-xs text-error">+22%</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl border border-outline/15">
+<span class="text-[10px] font-bold text-secondary uppercase tracking-widest mb-4 block">Entity Health</span>
+<div class="text-3xl font-manrope font-extrabold text-[#8CE7FF] mb-2">92.4%</div>
+<div class="w-full bg-outline/20 h-1.5 rounded-full overflow-hidden">
+<div class="bg-[#8CE7FF] h-full w-[92%]"></div>
+</div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl border border-outline/15">
+<span class="text-[10px] font-bold text-secondary uppercase tracking-widest mb-4 block">Signal Quality</span>
+<div class="text-3xl font-manrope font-extrabold text-on-surface mb-2">AA+</div>
+<p class="text-[10px] text-secondary">High-confidence primary sources</p>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl border border-outline/15">
+<span class="text-[10px] font-bold text-secondary uppercase tracking-widest mb-4 block">Next Rebalance</span>
+<div class="text-xl font-bold text-on-surface mb-2">12:14:00</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-xs text-primary">timer</span>
+<span class="text-[10px] text-primary font-bold tracking-widest">SYNC IN PROGRESS</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Right Panel: Intelligence Assistant -->
+<aside class="w-80 bg-surface-container-low border-l border-outline/15 flex flex-col">
+<div class="p-6 border-b border-outline/10 bg-[#A855F7]/5">
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-[#A855F7]">bolt</span>
+<h3 class="text-xs font-bold text-on-surface tracking-widest uppercase">Intelligence Assistant</h3>
+</div>
+<div class="bg-surface-container-low p-4 rounded-lg border border-[#A855F7]/20">
+<p class="text-xs text-secondary leading-relaxed mb-4 italic">
+                                "I've detected a shift in energy maritime routes. Current <span class="text-[#A855F7] font-bold">Watchlist Rules</span> may be too permissive for 'Dark Fleet' tanker movements in the Aegean."
+                            </p>
+<div class="space-y-2">
+<button class="w-full py-2 bg-[#A855F7]/10 hover:bg-[#A855F7]/20 text-[#A855F7] text-[10px] font-bold uppercase tracking-wider rounded border border-[#A855F7]/30 transition-all">
+                                    Optimize Filter Parameters
+                                </button>
+<button class="w-full py-2 bg-transparent hover:bg-surface-container text-secondary text-[10px] font-bold uppercase tracking-wider rounded transition-all">
+                                    Dismiss Suggestion
+                                </button>
+</div>
+</div>
+</div>
+<div class="flex-1 p-6 overflow-y-auto">
+<h4 class="text-[10px] font-bold text-secondary tracking-widest uppercase mb-4">Suggested Rules</h4>
+<div class="space-y-4">
+<div class="p-3 bg-surface-container-high rounded border-l-2 border-primary">
+<div class="flex items-center justify-between mb-1">
+<span class="text-[10px] font-bold text-on-surface">AIS Spoofing Detector</span>
+<span class="material-symbols-outlined text-xs text-primary">trending_up</span>
+</div>
+<p class="text-[10px] text-secondary leading-relaxed">Trigger alert if vessel GPS deviates &gt;2nm from AIS ping cluster.</p>
+<button class="mt-2 text-[9px] text-primary font-bold uppercase tracking-widest">Add to List</button>
+</div>
+<div class="p-3 bg-surface-container-high rounded border-l-2 border-outline">
+<div class="flex items-center justify-between mb-1">
+<span class="text-[10px] font-bold text-on-surface">Port Congestion Pivot</span>
+<span class="material-symbols-outlined text-xs text-secondary">query_stats</span>
+</div>
+<p class="text-[10px] text-secondary leading-relaxed">Flag assets with &gt;48hr dwell time in Class-B terminals.</p>
+<button class="mt-2 text-[9px] text-secondary font-bold uppercase tracking-widest">View Detail</button>
+</div>
+</div>
+<div class="mt-12">
+<h4 class="text-[10px] font-bold text-secondary tracking-widest uppercase mb-4">Contextual Documents</h4>
+<div class="space-y-2">
+<a class="flex items-center gap-3 p-2 hover:bg-surface-container-high rounded group" href="#">
+<span class="material-symbols-outlined text-sm text-secondary group-hover:text-on-surface">picture_as_pdf</span>
+<span class="text-[10px] text-secondary truncate">Maritime_Risk_2024_Q3.pdf</span>
+</a>
+<a class="flex items-center gap-3 p-2 hover:bg-surface-container-high rounded group" href="#">
+<span class="material-symbols-outlined text-sm text-secondary group-hover:text-on-surface">description</span>
+<span class="text-[10px] text-secondary truncate">Entity_Relations_Network.json</span>
+</a>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+</div>
+</body></html>

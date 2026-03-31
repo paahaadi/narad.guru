@@ -1,0 +1,27 @@
+Metadata-Version: 2.4
+Name: narad-intelligence
+Version: 0.1.0
+Summary: NARAD V2 Intelligence Plane — FastAPI + Celery backend
+Requires-Python: >=3.12
+Requires-Dist: asyncpg>=0.30.0
+Requires-Dist: celery[redis]>=5.4.0
+Requires-Dist: fastapi>=0.115.0
+Requires-Dist: google-generativeai>=0.8.0
+Requires-Dist: httptools>=0.6.0
+Requires-Dist: httpx>=0.28.0
+Requires-Dist: json-logic-qubit>=0.3.0
+Requires-Dist: orjson>=3.10.0
+Requires-Dist: pydantic>=2.10.0
+Requires-Dist: pydantic-settings>=2.7.0
+Requires-Dist: python-dotenv>=1.0.0
+Requires-Dist: redis[hiredis]>=5.2.0
+Requires-Dist: sqlalchemy[asyncio]>=2.0.36
+Requires-Dist: uvicorn[standard]>=0.32.0
+Requires-Dist: uvloop>=0.21.0
+Provides-Extra: dev
+Requires-Dist: factory-boy>=3.3.0; extra == "dev"
+Requires-Dist: mypy>=1.13.0; extra == "dev"
+Requires-Dist: pytest>=8.3.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.24.0; extra == "dev"
+Requires-Dist: pytest-cov>=6.0.0; extra == "dev"
+Requires-Dist: ruff>=0.8.0; extra == "dev"

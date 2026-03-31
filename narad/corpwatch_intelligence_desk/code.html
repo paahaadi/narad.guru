@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NARAD | CorpWatch - Entity Intelligence</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#ec7609",
+              "on-primary": "#ffffff",
+              "surface": "#0b0e15",
+              "surface-container": "#141a26",
+              "surface-container-high": "#18202f",
+              "surface-container-highest": "#1c2639",
+              "surface-container-low": "#0f131d",
+              "surface-container-lowest": "#000000",
+              "outline": "#6c758c",
+              "outline-variant": "#3f485d",
+              "on-surface": "#dce5ff",
+              "on-surface-variant": "#a2abc4",
+              "secondary": "#999ead",
+              "background": "#0b0e15",
+              "error": "#ee7d77"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .node-line { position: absolute; height: 1px; background: rgba(63, 72, 93, 0.3); transform-origin: left center; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #0B0E15; }
+        ::-webkit-scrollbar-thumb { background: #3F485D; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body overflow-hidden flex h-screen">
+<!-- Standardized Sidebar -->
+<aside class="bg-surface-container-lowest h-screen w-16 flex flex-col border-r border-outline-variant/20 z-50">
+<div class="h-16 flex items-center justify-center border-b border-outline-variant/10">
+<div class="w-10 h-10 bg-primary rounded flex items-center justify-center shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-on-primary text-2xl" style="font-variation-settings: 'FILL' 1;">security</span>
+</div>
+</div>
+<nav class="flex-1 py-6 flex flex-col items-center gap-6">
+<a class="text-secondary hover:text-on-surface transition-colors" href="#" title="GeoStrat">
+<span class="material-symbols-outlined text-[24px]" data-icon="public">public</span>
+</a>
+<a class="text-secondary hover:text-on-surface transition-colors" href="#" title="PulseBoard">
+<span class="material-symbols-outlined text-[24px]" data-icon="dashboard">dashboard</span>
+</a>
+<a class="text-primary transition-colors relative" href="#" title="CorpWatch">
+<span class="material-symbols-outlined text-[24px]" data-icon="business_center" style="font-variation-settings: 'FILL' 1;">business_center</span>
+<div class="absolute -right-4 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-l-full"></div>
+</a>
+<a class="text-secondary hover:text-on-surface transition-colors" href="#" title="LexPulse">
+<span class="material-symbols-outlined text-[24px]" data-icon="gavel">gavel</span>
+</a>
+<a class="text-secondary hover:text-on-surface transition-colors" href="#" title="Watchlists">
+<span class="material-symbols-outlined text-[24px]" data-icon="visibility">visibility</span>
+</a>
+<a class="text-secondary hover:text-on-surface transition-colors" href="#" title="Investigations">
+<span class="material-symbols-outlined text-[24px]" data-icon="troubleshoot">troubleshoot</span>
+</a>
+<a class="text-secondary hover:text-on-surface transition-colors" href="#" title="Briefings">
+<span class="material-symbols-outlined text-[24px]" data-icon="description">description</span>
+</a>
+</nav>
+<div class="pb-6 flex flex-col items-center gap-6 mt-auto">
+<a class="text-secondary hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]" data-icon="workspaces">workspaces</span>
+</a>
+<a class="text-secondary hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]" data-icon="settings">settings</span>
+</a>
+</div>
+</aside>
+<!-- Main Shell -->
+<main class="flex-1 flex flex-col overflow-hidden relative">
+<!-- Standardized Header -->
+<header class="bg-surface-container-lowest h-16 border-b border-outline-variant/20 flex items-center px-6 gap-8 z-40">
+<!-- Brand Block -->
+<div class="flex items-center gap-3 shrink-0">
+<div class="flex items-center gap-2">
+<span class="text-lg font-black text-on-surface tracking-widest font-headline">NARAD</span>
+<span class="h-4 w-px bg-outline-variant/40"></span>
+<span class="text-xs font-bold text-primary tracking-[0.2em] uppercase">CorpWatch</span>
+</div>
+</div>
+<!-- Global Search Bar (Center) -->
+<div class="flex-1 max-w-xl mx-auto">
+<div class="relative group">
+<div class="absolute inset-y-0 left-3.5 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-secondary text-lg group-focus-within:text-primary transition-colors">search</span>
+</div>
+<input class="w-full bg-surface-container border border-outline-variant/30 focus:ring-1 focus:ring-primary/40 focus:border-primary/40 rounded h-9 pl-10 pr-12 text-[13px] text-on-surface placeholder:text-secondary/50 font-body transition-all" placeholder="Ask NARAD or search entities..." type="text"/>
+<div class="absolute inset-y-0 right-2.5 flex items-center">
+<kbd class="px-1.5 py-0.5 rounded bg-surface-container-highest text-[9px] font-mono text-secondary border border-outline-variant/30">⌘ K</kbd>
+</div>
+</div>
+</div>
+<!-- Utility Cluster (Right) -->
+<div class="flex items-center gap-2 shrink-0">
+<div class="hidden xl:flex items-center gap-2 mr-2 px-3 py-1.5 rounded bg-surface-container border border-outline-variant/10">
+<span class="text-[10px] text-secondary font-bold tracking-widest uppercase">Region:</span>
+<span class="text-[10px] text-on-surface font-semibold">South Asia</span>
+</div>
+<button class="p-2 text-secondary hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined text-[20px]">calendar_today</span>
+</button>
+<button class="p-2 text-secondary hover:text-on-surface transition-colors relative">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+<span class="absolute top-2 right-2 w-1.5 h-1.5 bg-primary rounded-full"></span>
+</button>
+<button class="p-2 text-secondary hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined text-[20px]">ios_share</span>
+</button>
+<div class="h-8 w-px bg-outline-variant/20 mx-1"></div>
+<div class="w-8 h-8 rounded bg-primary/20 flex items-center justify-center border border-primary/30 ml-1">
+<span class="material-symbols-outlined text-primary text-lg" style="font-variation-settings: 'FILL' 1;">account_circle</span>
+</div>
+</div>
+</header>
+<!-- Canvas -->
+<div class="flex-1 overflow-y-auto px-8 py-8 space-y-6">
+<!-- Entity Hero Panel -->
+<section class="grid grid-cols-12 gap-0 overflow-hidden rounded bg-surface-container shadow-2xl relative border border-outline-variant/20">
+<div class="col-span-12 md:col-span-8 p-8 relative z-10">
+<div class="flex flex-col sm:flex-row sm:items-end gap-4 mb-6">
+<div class="space-y-1">
+<div class="flex items-center gap-3">
+<h2 class="text-3xl font-black font-headline tracking-tight text-on-surface uppercase">Reliance Industries Ltd.</h2>
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<div class="flex items-center gap-4 text-[11px] font-mono text-secondary">
+<span>CIN: L17110MH1973PLC019786</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">location_on</span> Mumbai, MH, IN</span>
+</div>
+</div>
+<div class="flex items-center gap-2 ml-auto">
+<div class="flex flex-col items-end">
+<span class="text-[10px] uppercase tracking-widest text-secondary font-bold">Strategic Risk Score</span>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-2xl font-black text-primary font-headline">74</span>
+<div class="px-2 py-0.5 rounded bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold uppercase">Amber Status</div>
+</div>
+</div>
+</div>
+</div>
+<div class="p-5 rounded bg-surface-container-lowest/40 border border-outline-variant/10 backdrop-blur-sm relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-2">
+<span class="text-[8px] text-primary font-bold tracking-widest uppercase bg-primary/10 px-2 py-0.5 rounded">AI Synthesis</span>
+</div>
+<p class="text-sm leading-relaxed text-on-surface-variant font-body pr-16">
+                        Deep horizontal integration across petrochem, retail, and telecommunications identifies Reliance as a critical sovereign infrastructure node. Recent capital restructuring indicates a pivot toward green energy assets, while high-degree relationship centrality suggests potential sensitivity to shifts in domestic trade policy and maritime supply chain stability.
+                    </p>
+</div>
+</div>
+<div class="col-span-12 md:col-span-4 bg-surface-container-high border-l border-outline-variant/20 relative overflow-hidden">
+<div class="absolute inset-0 opacity-10 pointer-events-none grayscale brightness-50 contrast-125" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBT0HfbUFJxvtmhHdCneTZbw6Ze-m83v9UyfWhhlraz731_1g4K6YU1-84mNRP-lpN5zqEQRulHUtB6GjEjoRmJ0iLkPizzK-y4sRUBKwCIakP8Xc4q4Kui9XEZwRg3fp79tiy2PkE3UdRHVVttdwu7MbHRCHJiqdBBEKrMkLFxXkgo22YPcjfLywPzmZgYJyutA1eriGOy7qQBIwYcpBcVuawmQFigjZW2_ENGxi6s56jY3MZzie9kOgmviUpBjyU83BojUC5TILs'); background-size: cover; background-position: center;"></div>
+<div class="relative p-8 h-full flex flex-col justify-between">
+<div class="space-y-4">
+<div class="flex justify-between items-center text-[10px]">
+<span class="text-secondary uppercase tracking-widest font-bold">Sector Matrix</span>
+<span class="text-primary font-mono font-bold">Multi-Conglomerate</span>
+</div>
+<div class="space-y-2">
+<div class="w-full h-1 bg-surface-container-lowest rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 88%"></div>
+</div>
+<div class="flex justify-between text-[9px] font-mono text-secondary">
+<span>MARKET CAP STABILITY</span>
+<span class="text-on-surface">Tier 1 Sovereign</span>
+</div>
+</div>
+</div>
+<button class="w-full py-3.5 rounded bg-primary text-on-primary font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:brightness-110 transition-all shadow-lg shadow-primary/10">
+<span class="material-symbols-outlined text-sm">troubleshoot</span>
+                        Initiate Deep Due Diligence
+                    </button>
+</div>
+</div>
+</section>
+<!-- Main Grid (3-Zone) -->
+<div class="grid grid-cols-12 gap-6 min-h-[500px]">
+<!-- Left: Ownership/Relationship Graph -->
+<div class="col-span-12 lg:col-span-4 bg-surface-container rounded flex flex-col overflow-hidden border border-outline-variant/20 shadow-lg">
+<div class="p-4 border-b border-outline-variant/20 flex justify-between items-center bg-surface-container-high">
+<h3 class="text-[10px] font-bold uppercase tracking-widest text-primary">Entity Network Map</h3>
+<div class="flex gap-1">
+<button class="p-1.5 rounded hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-sm">zoom_in</span>
+</button>
+<button class="p-1.5 rounded hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-sm">fullscreen</span>
+</button>
+</div>
+</div>
+<div class="flex-1 relative bg-surface-container-lowest overflow-hidden">
+<div class="absolute inset-0 flex items-center justify-center">
+<!-- Central Node -->
+<div class="relative z-20 group">
+<div class="w-16 h-16 rounded bg-primary/10 border border-primary flex items-center justify-center shadow-[0_0_40px_rgba(236,118,9,0.1)]">
+<span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 1;">corporate_fare</span>
+</div>
+<div class="absolute top-18 left-1/2 -translate-x-1/2 whitespace-nowrap bg-surface-container-highest px-2 py-1 rounded text-[10px] font-bold border border-outline-variant/30">Target Entity</div>
+</div>
+<!-- Simulated Network Lines -->
+<div class="node-line w-32 left-1/2 top-1/2 -rotate-45"></div>
+<div class="node-line w-32 left-1/2 top-1/2 rotate-45"></div>
+<div class="node-line w-32 right-1/2 top-1/2 rotate-[135deg]"></div>
+<div class="node-line w-32 right-1/2 top-1/2 rotate-[225deg]"></div>
+<!-- Peripheral Nodes -->
+<div class="absolute top-1/4 right-1/4 w-10 h-10 rounded bg-surface-container-high border border-outline-variant/50 flex items-center justify-center">
+<span class="material-symbols-outlined text-sm text-secondary">person</span>
+</div>
+<div class="absolute bottom-1/4 right-1/4 w-10 h-10 rounded bg-surface-container-high border border-outline-variant/50 flex items-center justify-center">
+<span class="material-symbols-outlined text-sm text-secondary">domain</span>
+</div>
+<div class="absolute top-1/4 left-1/4 w-10 h-10 rounded bg-surface-container-high border border-outline-variant/50 flex items-center justify-center">
+<span class="material-symbols-outlined text-sm text-secondary">hub</span>
+</div>
+<div class="absolute bottom-1/4 left-1/4 w-10 h-10 rounded bg-surface-container-high border border-outline-variant/50 flex items-center justify-center">
+<span class="material-symbols-outlined text-sm text-primary" style="font-variation-settings: 'FILL' 1;">shield_with_heart</span>
+</div>
+</div>
+<div class="absolute bottom-4 left-4 space-y-2">
+<div class="flex items-center gap-2 text-[9px] text-secondary">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span>Parent / Ultimate Controller</span>
+</div>
+<div class="flex items-center gap-2 text-[9px] text-secondary">
+<span class="w-2 h-2 rounded-full bg-outline-variant"></span>
+<span>Subsidiary Asset</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Center: Tabbed Intelligence Panel -->
+<div class="col-span-12 lg:col-span-5 bg-surface-container rounded flex flex-col overflow-hidden border border-outline-variant/20 shadow-lg">
+<nav class="flex border-b border-outline-variant/20 bg-surface-container-high px-2">
+<button class="px-5 py-3 text-[11px] font-bold text-primary border-b-2 border-primary">Overview</button>
+<button class="px-5 py-3 text-[11px] font-bold text-secondary hover:text-on-surface transition-colors">Filings &amp; Compliance</button>
+<button class="px-5 py-3 text-[11px] font-bold text-secondary hover:text-on-surface transition-colors">Related Events</button>
+<button class="px-5 py-3 text-[11px] font-bold text-secondary hover:text-on-surface transition-colors">Geography</button>
+</nav>
+<div class="flex-1 overflow-y-auto p-6 space-y-6">
+<div class="space-y-4">
+<h4 class="text-[10px] font-bold uppercase tracking-[0.2em] text-secondary">Key Executive Data</h4>
+<div class="space-y-2">
+<div class="p-3 rounded bg-surface-container-lowest/50 flex items-center justify-between group cursor-pointer hover:bg-surface-container-high transition-colors border border-outline-variant/10">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-surface-container-highest border border-outline-variant/20 flex items-center justify-center font-bold text-primary text-xs uppercase">MA</div>
+<div>
+<p class="text-[13px] font-bold leading-none">Mukesh D. Ambani</p>
+<p class="text-[10px] text-secondary mt-1">CMD &amp; Primary Controlling Stakeholder</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-sm text-secondary opacity-0 group-hover:opacity-100 transition-opacity">arrow_forward</span>
+</div>
+<div class="p-3 rounded bg-surface-container-lowest/50 flex items-center justify-between group cursor-pointer hover:bg-surface-container-high transition-colors border border-outline-variant/10">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-surface-container-highest border border-outline-variant/20 flex items-center justify-center font-bold text-primary text-xs uppercase">PM</div>
+<div>
+<p class="text-[13px] font-bold leading-none">Pankaj Mohan Pawar</p>
+<p class="text-[10px] text-secondary mt-1">Independent Director</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-sm text-secondary opacity-0 group-hover:opacity-100 transition-opacity">arrow_forward</span>
+</div>
+</div>
+</div>
+<div class="space-y-4 pt-4 border-t border-outline-variant/10">
+<h4 class="text-[10px] font-bold uppercase tracking-[0.2em] text-secondary">Financial Footprint (FY23)</h4>
+<div class="grid grid-cols-2 gap-4">
+<div class="p-4 rounded bg-surface-container-lowest/30 border border-outline-variant/10">
+<p class="text-[10px] text-secondary uppercase font-bold tracking-widest">Revenue (CR)</p>
+<p class="text-xl font-mono font-bold mt-1 text-on-surface">974,864</p>
+<p class="text-[10px] text-primary mt-1 font-bold">↑ 23.2% YoY</p>
+</div>
+<div class="p-4 rounded bg-surface-container-lowest/30 border border-outline-variant/10">
+<p class="text-[10px] text-secondary uppercase font-bold tracking-widest">Net Profit (CR)</p>
+<p class="text-xl font-mono font-bold mt-1 text-on-surface">73,670</p>
+<p class="text-[10px] text-primary mt-1 font-bold">↑ 11.4% YoY</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right: Side Utility Panel -->
+<div class="col-span-12 lg:col-span-3 space-y-6">
+<!-- Watchlist Status -->
+<div class="bg-surface-container rounded p-5 border border-outline-variant/20 shadow-lg">
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-[10px] font-bold uppercase tracking-widest text-secondary">Monitoring</h3>
+<div class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-primary/10 border border-primary/20">
+<span class="w-1 h-1 rounded-full bg-primary animate-pulse"></span>
+<span class="text-[9px] text-primary font-black uppercase">Active</span>
+</div>
+</div>
+<div class="space-y-3">
+<button class="w-full p-3 flex items-center justify-between rounded bg-surface-container-lowest text-[11px] font-bold border border-outline-variant/10 hover:border-primary/50 transition-all group">
+<span class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px] text-secondary group-hover:text-primary">bookmark</span> Watchlist Alpha</span>
+<span class="material-symbols-outlined text-sm text-primary">check</span>
+</button>
+<button class="w-full p-3 flex items-center justify-between rounded bg-surface-container-lowest text-[11px] font-bold border border-outline-variant/10 hover:border-primary/50 transition-all group">
+<span class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px] text-secondary group-hover:text-primary">notification_add</span> Add to Alert Cluster</span>
+</button>
+</div>
+</div>
+<!-- AI Insight Summary -->
+<div class="bg-surface-container-high rounded p-5 border border-primary/20 relative overflow-hidden group shadow-lg">
+<div class="absolute -top-10 -right-10 w-32 h-32 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-colors"></div>
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-primary text-xl">psychology</span>
+<h3 class="text-[10px] font-bold uppercase tracking-widest text-on-surface">Sovereign Predictive</h3>
+</div>
+<div class="space-y-4">
+<div class="p-3 rounded bg-surface-container-lowest border-l-2 border-primary">
+<p class="text-[11px] leading-relaxed text-on-surface-variant italic">"Entity correlation with offshore holdings in Singapore suggests upcoming portfolio diversification toward digital infrastructure. Risk variance detected in subsidiary RIL-82."</p>
+</div>
+<div class="pt-2">
+<p class="text-[10px] text-secondary font-bold uppercase tracking-widest mb-2">Insight Confidence</p>
+<div class="flex items-center gap-3">
+<div class="flex-1 h-1 bg-surface-container-lowest rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 92%"></div>
+</div>
+<span class="text-[10px] font-mono font-bold text-primary">92%</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Standardized Footer -->
+<footer class="bg-surface-container-lowest h-10 border-t border-outline-variant/20 flex justify-between items-center px-6 z-50 shrink-0">
+<div class="flex gap-6">
+<div class="flex items-center gap-2 text-primary text-[10px] uppercase tracking-widest font-bold">
+<span class="material-symbols-outlined text-[14px]">sensors</span>
+<span>Live Feeds: Optimal</span>
+</div>
+<div class="flex items-center gap-2 text-secondary text-[10px] uppercase tracking-widest">
+<span class="material-symbols-outlined text-[14px]">analytics</span>
+<span>Telemetry: Secured</span>
+</div>
+<div class="flex items-center gap-2 text-secondary text-[10px] uppercase tracking-widest">
+<span class="material-symbols-outlined text-[14px]">lan</span>
+<span>Connectivity: Global</span>
+</div>
+</div>
+<div class="flex items-center gap-2 text-primary text-[10px] uppercase tracking-widest font-bold">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span>System Status: Core Active</span>
+</div>
+</footer>
+</main>
+<!-- Atmospheric Glow -->
+<div class="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 blur-[120px] rounded-full pointer-events-none z-0"></div>
+<div class="fixed bottom-[-10%] right-[-10%] w-[30%] h-[30%] bg-primary/3 blur-[100px] rounded-full pointer-events-none z-0"></div>
+</body></html>
