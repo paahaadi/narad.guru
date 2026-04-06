@@ -90,25 +90,25 @@ SELECT
   a.id,
   a.tenant_id,
   a.action,
-  a.table_name,
-  a.record_id,
-  a.changed_by,
-  a.changed_at,
+  a.object_type AS table_name,
+  a.object_id AS record_id,
+  a.user_id AS changed_by,
+  a.created_at AS changed_at,
   CASE
-    WHEN a.table_name LIKE '%socmint%'    THEN 'socmint'
-    WHEN a.table_name LIKE '%briefing%'   THEN 'briefing'
-    WHEN a.table_name LIKE '%investigat%' THEN 'investigation'
-    WHEN a.table_name LIKE '%evidence%'   THEN 'evidence'
-    WHEN a.table_name LIKE '%dpdpa%'      THEN 'dpdpa'
+    WHEN a.object_type LIKE '%socmint%'    THEN 'socmint'
+    WHEN a.object_type LIKE '%briefing%'   THEN 'briefing'
+    WHEN a.object_type LIKE '%investigat%' THEN 'investigation'
+    WHEN a.object_type LIKE '%evidence%'   THEN 'evidence'
+    WHEN a.object_type LIKE '%dpdpa%'      THEN 'dpdpa'
     ELSE 'general'
   END AS compliance_category,
   jsonb_strip_nulls(
     jsonb_build_object(
-      'record_id', a.record_id::text,
+      'record_id', a.object_id::text,
       'action',    a.action
     )
   ) AS audit_summary
-FROM core.audit_log a;
+FROM audit.audit_log a;
 
 -- ── 4. Performance Indexes for Phase 4 workspaces ────────────────────────
 
@@ -148,7 +148,7 @@ policy_rows AS (
   SELECT * FROM (VALUES
     ('socmint-90-day', 'core', 'socmint_signals', 'created_at', 90, 'socmint', 30, FALSE),
     ('documents-365-day', 'core', 'documents', 'fetched_at', 365, 'standard', 90, TRUE),
-    ('audit-log-2555-day', 'core', 'audit_log', 'changed_at', 2555, 'audit', 2555, TRUE),
+    ('audit-log-2555-day', 'audit', 'audit_log', 'created_at', 2555, 'audit', 2555, TRUE),
     ('dpdpa-requests-2555-day', 'core', 'dpdpa_requests', 'created_at', 2555, 'audit', 365, TRUE),
     ('ai-suggestions-180-day', 'workflow', 'ai_suggestions', 'created_at', 180, 'standard', 0, FALSE)
   ) AS items(

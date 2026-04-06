@@ -25,12 +25,12 @@ type Suggestion = {
 
 export async function POST(
   request: Request,
-  { params }: { params: { investigationId: string } },
+  { params }: { params: Promise<{ investigationId: string }> },
 ) {
   const session = await requireApiSession(request);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { investigationId } = params;
+  const { investigationId } = await params;
 
   // Verify investigation belongs to this tenant
   const inv = await queryRow<{ id: string; title: string; description: string | null; hypothesis: string | null }>(

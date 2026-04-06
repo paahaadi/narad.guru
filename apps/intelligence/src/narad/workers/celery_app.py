@@ -14,6 +14,7 @@ TASK_MODULES = (
     "narad.workers.enrichment_tasks",
     "narad.workers.projection_tasks",
     "narad.workers.maintenance_tasks",
+    "narad.workers.alert_trigger",
 )
 
 celery = Celery(
@@ -56,6 +57,10 @@ celery.conf.update(
         "rebuild-sector-forecasts": {
             "task": "narad.projection.rebuild_sector_forecasts",
             "schedule": 24 * 60 * 60,
+        },
+        "evaluate-alert-triggers": {
+            "task": "narad.alerts.evaluate_alert_triggers",
+            "schedule": 5 * 60,  # every 5 minutes
         },
     },
 )

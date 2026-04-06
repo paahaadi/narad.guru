@@ -112,6 +112,70 @@ export async function listPulseboardCards(tenantId: string, limit = 24) {
   return rows.map((row) => normalizePulseboardCard(row.card, row.event_id));
 }
 
+export type UserPreferences = {
+  regions: string[];
+  entityTypes: string[];
+  eventTypes: string[];
+  severityFilter: string;
+};
+
+export async function listPersonalizedPulseboardCards(
+  tenantId: string,
+  preferences: UserPreferences,
+  limit = 24,
+) {
+  // Start with the base feed — projections.pulseboard_feed is the materialized view
+  // We apply WHERE conditions based on user preferences
+  const conditions: string[] = ["pf.tenant_id = $1"];
+  const values: unknown[] = [tenantId];
+  let idx = 2;
+
+  // Severity filter — if not "all", filter to that severity or higher
+  if (preferences.severityFilter && preferences.severityFilter !== "all") {
+    const severityOrder: Record<string, number> = {
+      critical: 0,
+      high: 1,
+      medium: 2,
+      low: 3,
+    };
+    const threshold = severityOrder[preferences.severityFilter];
+    if (threshold !== undefined) {
+      conditions.push(`pf.severity_rank <= $${idx}`);
+      values.push(threshold);
+      idx++;
+    }
+  }
+
+  // Region filter — match state_code from the underlying event
+  if (preferences.regions.length > 0) {
+    conditions.push(`e.state_code = ANY($${idx})`);
+    values.push(preferences.regions);
+    idx++;
+  }
+
+  // Event type filter
+  if (preferences.eventTypes.length > 0) {
+    conditions.push(`e.event_type = ANY($${idx})`);
+    values.push(preferences.eventTypes);
+    idx++;
+  }
+
+  const rows = await queryRows<PulseboardFeedRow>(
+    tenantId,
+    `
+      SELECT pf.event_id::text AS event_id, pf.card
+      FROM projections.pulseboard_feed AS pf
+      JOIN core.events AS e ON e.id = pf.event_id
+      WHERE ${conditions.join(" AND ")}
+      ORDER BY pf.severity_rank ASC, pf.occurred_at DESC
+      LIMIT $${idx}
+    `,
+    [...values, limit],
+  );
+
+  return rows.map((row) => normalizePulseboardCard(row.card, row.event_id));
+}
+
 export async function getPulseboardEventDetail(tenantId: string, eventId: string) {
   const row = await queryRow<PulseboardEventRow>(
     tenantId,

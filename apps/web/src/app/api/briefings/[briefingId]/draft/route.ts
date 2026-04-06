@@ -19,12 +19,12 @@ import { normalizeSectionInput } from "@/app/api/briefings/[briefingId]/draft/_n
 
 export async function POST(
   request: Request,
-  { params }: { params: { briefingId: string } },
+  { params }: { params: Promise<{ briefingId: string }> },
 ) {
   const session = await requireApiSession(request);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { briefingId } = params;
+  const { briefingId } = await params;
 
   // Verify briefing ownership
   const briefing = await queryRow<{

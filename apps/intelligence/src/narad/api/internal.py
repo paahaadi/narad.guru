@@ -270,3 +270,270 @@ async def draft_briefing(
         sections=sections,
         model=settings.gemini_model_mid,
     )
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Phase 5 — Decision Intelligence Endpoints
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+class RecommendRequest(BaseModel):
+    targetType: str = Field(..., description="event | entity | investigation | district")
+    targetId: str
+    context: str = Field(..., max_length=10000)
+    tenantId: str
+
+
+class RecommendationItem(BaseModel):
+    recommendationType: str
+    title: str
+    summary: str
+    impactSummary: str | None = None
+    reasoning: str
+    evidenceRefs: list[dict[str, str]] = []
+    confidence: float = 0.55
+
+
+class RecommendResponse(BaseModel):
+    targetType: str
+    targetId: str
+    recommendations: list[RecommendationItem] = []
+    model: str
+    verificationRequired: bool = True
+
+
+class ImpactSummaryRequest(BaseModel):
+    scope: str = Field(..., description="district | entity | sector")
+    scopeId: str
+    context: str = Field(..., max_length=10000)
+    tenantId: str
+
+
+class ImpactDimension(BaseModel):
+    dimension: str
+    severity: str
+    description: str
+    confidence: float = 0.55
+
+
+class ImpactSummaryResponse(BaseModel):
+    scope: str
+    scopeId: str
+    overallSeverity: str
+    narrative: str
+    dimensions: list[ImpactDimension] = []
+    model: str
+    verificationRequired: bool = True
+
+
+# ── Phase 5 Prompt helpers ────────────────────────────────────────────────────
+
+
+def _recommend_prompt(target_type: str, context: str) -> str:
+    return "\n".join([
+        "You are a sovereign-intelligence decision support assistant.",
+        f"Analyse the following {target_type} context and generate actionable recommendations.",
+        "Return a JSON object with key 'recommendations': list of objects with keys:",
+        "  recommendationType: one of (action, risk_mitigation, escalation, investigation_lead, policy, monitoring)",
+        "  title: short heading (max 100 chars)",
+        "  summary: 2-3 sentence actionable recommendation",
+        "  impactSummary: 1 sentence on potential impact if recommendation is followed",
+        "  reasoning: 1-2 sentences explaining the basis from evidence",
+        "  evidenceRefs: list of {type, label} citing specific evidence from context",
+        "  confidence: 0.0-1.0",
+        "",
+        "RULES:",
+        "- Return at most 5 recommendations",
+        "- Each recommendation must be grounded in the provided context",
+        "- Do NOT invent facts not present in context",
+        "- These are SUGGESTIONS requiring analyst verification",
+        "- Include specific evidence references",
+        "",
+        f"Context:\n{context[:8000]}",
+    ])
+
+
+def _impact_summary_prompt(scope: str, context: str) -> str:
+    return "\n".join([
+        "You are an intelligence-analysis assistant specialising in impact assessment.",
+        f"Analyse the following context for the {scope} and generate a structured impact summary.",
+        "Return a JSON object with keys:",
+        "  overallSeverity: one of (critical, high, medium, low)",
+        "  narrative: 3-5 sentence overall impact assessment",
+        "  dimensions: list of {dimension, severity, description, confidence} where:",
+        "    dimension: one of (human, economic, legal, infrastructure, environmental, political, social, reputational)",
+        "    severity: one of (critical, high, medium, low)",
+        "    description: 1-2 sentence impact for this dimension",
+        "    confidence: 0.0-1.0",
+        "",
+        "RULES:",
+        "- Ground all assessments in the provided context",
+        "- Do NOT speculate beyond what is evidenced",
+        "- This is an UNVERIFIED assessment requiring analyst review",
+        "",
+        f"Context:\n{context[:8000]}",
+    ])
+
+
+# ── Phase 5 Endpoints ────────────────────────────────────────────────────────
+
+
+@router.post(
+    "/recommend",
+    response_model=RecommendResponse,
+    dependencies=[Depends(internal_auth)],
+)
+async def generate_recommendations(
+    payload: RecommendRequest,
+    request: Request,
+    settings: Annotated[Settings, Depends(settings_dependency)],
+) -> Any:
+    """
+    Generate structured decision recommendations for a target (event/entity/investigation/district).
+    All outputs carry verificationRequired=True.
+    """
+    llm = LLMService(settings)
+
+    if not llm.configured:
+        logger.info("LLM not configured; returning empty recommendations for %s/%s", payload.targetType, payload.targetId)
+        return RecommendResponse(
+            targetType=payload.targetType,
+            targetId=payload.targetId,
+            recommendations=[
+                RecommendationItem(
+                    recommendationType="monitoring",
+                    title="Manual review required",
+                    summary="AI service is not configured. An analyst should review this item manually and determine appropriate actions.",
+                    reasoning="Automated recommendation generation requires a configured LLM service (GEMINI_API_KEY).",
+                    confidence=0.0,
+                ),
+            ],
+            model="deterministic-fallback",
+        )
+
+    prompt = _recommend_prompt(payload.targetType, payload.context)
+    result = await llm.generate_json(prompt, model="mid")
+
+    if not isinstance(result, dict) or "recommendations" not in result:
+        return RecommendResponse(
+            targetType=payload.targetType,
+            targetId=payload.targetId,
+            recommendations=[
+                RecommendationItem(
+                    recommendationType="monitoring",
+                    title="AI analysis inconclusive",
+                    summary="The AI service could not generate structured recommendations. Manual analyst review is advised.",
+                    reasoning="LLM returned an unparseable response.",
+                    confidence=0.0,
+                ),
+            ],
+            model=settings.gemini_model_mid,
+        )
+
+    valid_types = {"action", "risk_mitigation", "escalation", "investigation_lead", "policy", "monitoring"}
+    recommendations: list[RecommendationItem] = []
+    for item in result["recommendations"][:5]:
+        if not isinstance(item, dict) or not item.get("title"):
+            continue
+        rec_type = str(item.get("recommendationType", "monitoring")).strip()
+        if rec_type not in valid_types:
+            rec_type = "monitoring"
+        evidence = []
+        for ref in (item.get("evidenceRefs") or [])[:5]:
+            if isinstance(ref, dict) and ref.get("label"):
+                evidence.append({
+                    "type": str(ref.get("type", "context")).strip()[:50],
+                    "label": str(ref["label"]).strip()[:200],
+                })
+        recommendations.append(RecommendationItem(
+            recommendationType=rec_type,
+            title=str(item["title"]).strip()[:100],
+            summary=str(item.get("summary", "")).strip()[:500],
+            impactSummary=str(item.get("impactSummary", "")).strip()[:300] or None,
+            reasoning=str(item.get("reasoning", "")).strip()[:500],
+            evidenceRefs=evidence,
+            confidence=max(0.0, min(1.0, float(item.get("confidence", 0.55)))),
+        ))
+
+    return RecommendResponse(
+        targetType=payload.targetType,
+        targetId=payload.targetId,
+        recommendations=recommendations,
+        model=settings.gemini_model_mid,
+    )
+
+
+@router.post(
+    "/impact-summary",
+    response_model=ImpactSummaryResponse,
+    dependencies=[Depends(internal_auth)],
+)
+async def generate_impact_summary(
+    payload: ImpactSummaryRequest,
+    request: Request,
+    settings: Annotated[Settings, Depends(settings_dependency)],
+) -> Any:
+    """
+    Generate a structured impact assessment for a scope (district/entity/sector).
+    All outputs carry verificationRequired=True.
+    """
+    llm = LLMService(settings)
+
+    if not llm.configured:
+        logger.info("LLM not configured; returning empty impact for %s/%s", payload.scope, payload.scopeId)
+        return ImpactSummaryResponse(
+            scope=payload.scope,
+            scopeId=payload.scopeId,
+            overallSeverity="medium",
+            narrative="AI service is not configured. Impact assessment requires manual analyst review.",
+            dimensions=[],
+            model="deterministic-fallback",
+        )
+
+    prompt = _impact_summary_prompt(payload.scope, payload.context)
+    result = await llm.generate_json(prompt, model="mid")
+
+    if not isinstance(result, dict):
+        return ImpactSummaryResponse(
+            scope=payload.scope,
+            scopeId=payload.scopeId,
+            overallSeverity="medium",
+            narrative="AI analysis could not be completed. Manual review required.",
+            dimensions=[],
+            model=settings.gemini_model_mid,
+        )
+
+    valid_severities = {"critical", "high", "medium", "low"}
+    valid_dimensions = {"human", "economic", "legal", "infrastructure", "environmental", "political", "social", "reputational"}
+
+    overall = str(result.get("overallSeverity", "medium")).lower().strip()
+    if overall not in valid_severities:
+        overall = "medium"
+
+    narrative = str(result.get("narrative", "Impact assessment pending review.")).strip()[:1000]
+
+    dimensions: list[ImpactDimension] = []
+    for d in (result.get("dimensions") or [])[:8]:
+        if not isinstance(d, dict) or not d.get("dimension"):
+            continue
+        dim = str(d["dimension"]).lower().strip()
+        if dim not in valid_dimensions:
+            continue
+        sev = str(d.get("severity", "medium")).lower().strip()
+        if sev not in valid_severities:
+            sev = "medium"
+        dimensions.append(ImpactDimension(
+            dimension=dim,
+            severity=sev,
+            description=str(d.get("description", "")).strip()[:500],
+            confidence=max(0.0, min(1.0, float(d.get("confidence", 0.55)))),
+        ))
+
+    return ImpactSummaryResponse(
+        scope=payload.scope,
+        scopeId=payload.scopeId,
+        overallSeverity=overall,
+        narrative=narrative,
+        dimensions=dimensions,
+        model=settings.gemini_model_mid,
+    )

@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { startTransition, useDeferredValue, useEffect, useMemo } from "react";
+import { startTransition, useDeferredValue, useEffect, useMemo, useState } from "react";
 import type { PulseboardCard, PulseboardEventDetail } from "@/lib/pulseboard";
 import { usePulseboardStore } from "@/stores/pulseboard-store";
 
@@ -126,6 +126,19 @@ export function PulseboardWorkspace({
     return selectedFromStore ?? detailQuery.data ?? initialDetail;
   }, [deferredEventId, detailQuery.data, initialDetail, selectedFromStore]);
 
+  const [feedMode, setFeedMode] = useState<"all" | "personalized">("all");
+  const [personalizedItems, setPersonalizedItems] = useState<PulseboardCard[]>([]);
+
+  useEffect(() => {
+    if (feedMode !== "personalized") return;
+    fetch("/api/pulseboard/personalized", { credentials: "include" })
+      .then((r) => (r.ok ? r.json() : { cards: [] }))
+      .then((data) => setPersonalizedItems(data.cards ?? []))
+      .catch(() => setPersonalizedItems([]));
+  }, [feedMode]);
+
+  const displayItems = feedMode === "personalized" ? personalizedItems : items;
+
   return (
     <section className="workspace-screen pulseboard-screen">
       <div className="section-heading section-heading--row">
@@ -134,6 +147,18 @@ export function PulseboardWorkspace({
           <h2>PulseBoard</h2>
         </div>
         <div className="cluster-row">
+          <button
+            className={`pill pill--selectable ${feedMode === "all" ? "is-active pill--primary" : ""}`}
+            onClick={() => setFeedMode("all")}
+          >
+            All events
+          </button>
+          <button
+            className={`pill pill--selectable ${feedMode === "personalized" ? "is-active pill--cyan" : ""}`}
+            onClick={() => setFeedMode("personalized")}
+          >
+            Personalized
+          </button>
           <span className="pill pill--critical">critical only</span>
           <span className="pill pill--primary">official</span>
           <span className="pill pill--cyan">verified</span>
@@ -143,7 +168,7 @@ export function PulseboardWorkspace({
       <div className="pulseboard-layout">
         <aside className="panel pulseboard-layout__feed">
           <div className="list-stack">
-            {items.map((card) => (
+            {displayItems.map((card) => (
               <button
                 key={card.eventId}
                 type="button"

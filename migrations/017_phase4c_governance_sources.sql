@@ -19,6 +19,17 @@ ALTER TABLE core.sources
   ADD COLUMN IF NOT EXISTS visibility_tier       TEXT NOT NULL DEFAULT 'internal'
     CHECK (visibility_tier IN ('internal', 'analyst', 'published'));
 
+-- 1b. Update status constraint to include 'pending_approval'
+ALTER TABLE core.sources DROP CONSTRAINT IF EXISTS sources_status_check;
+ALTER TABLE core.sources ADD CONSTRAINT sources_status_check
+  CHECK (status IN ('active', 'degraded', 'disabled', 'pending_approval'));
+
+-- 1c. Update source_type constraint to include 'scrape'
+ALTER TABLE core.sources DROP CONSTRAINT IF EXISTS core_sources_source_type_check;
+ALTER TABLE core.sources DROP CONSTRAINT IF EXISTS sources_source_type_check;
+ALTER TABLE core.sources ADD CONSTRAINT sources_source_type_check
+  CHECK (source_type IN ('rss','api','portal','wms','sftp','manual','satellite', 'scrape'));
+
 -- Update tier-3 marker: Tier 3 sources always require review
 -- (tier-2 sources already seeded in 015; tier-3 will be seed-inserted below)
 CREATE INDEX IF NOT EXISTS idx_sources_governance
@@ -115,17 +126,17 @@ WITH default_tenant AS (
 ),
 tier3_rows AS (
   SELECT * FROM (VALUES
-    ('Commercial AIS (Placeholder)', 'ais-commercial', 'api', 3, 'licensed',
-     'restricted', 86400, NULL, '{"note":"Licensed feed; requires contract credential"}',
-     FALSE, FALSE, 'pending_approval', 'source-of-record', TRUE, TRUE, 365, 'analyst'),
-    ('SOCMINT Public Signals', 'socmint-public', 'scrape', 3, 'weak_signal',
-     'socmint', 3600, NULL, '{"note":"Public collection only; strict minimization required"}',
-     FALSE, FALSE, 'pending_approval', 'weak-signal', FALSE, FALSE, 90, 'internal')
+    ('Commercial AIS (Placeholder)', 'ais-commercial', 'api', 3, 'commercial',
+     86400, NULL, '{"note":"Licensed feed; requires contract credential"}',
+     FALSE, FALSE, 'pending_approval', 'source-of-record', 'licensed', TRUE, 365, 'analyst'),
+    ('SOCMINT Public Signals', 'socmint-public', 'scrape', 3, 'open_data',
+     3600, NULL, '{"note":"Public collection only; strict minimization required"}',
+     FALSE, FALSE, 'pending_approval', 'weak-signal', 'socmint', FALSE, 90, 'internal')
   ) AS items(
     name, slug, source_type, trust_tier, authority_level,
-    sensitivity_class, cadence, base_url, config,
+    cadence, base_url, config,
     governance_approved, is_active, status,
-    source_class, review_required, volatility_flag, data_retention_days, visibility_tier
+    source_class, sensitivity_class, review_required, data_retention_days, visibility_tier
   )
 )
 INSERT INTO core.sources (
@@ -133,14 +144,14 @@ INSERT INTO core.sources (
   update_cadence_seconds, base_url, config,
   governance_approved, is_active, status,
   source_class, sensitivity_class, review_required,
-  volatility_flag, data_retention_days, visibility_tier
+  data_retention_days, visibility_tier
 )
 SELECT
   dt.id, t.name, t.slug, t.source_type, t.trust_tier, t.authority_level,
   t.cadence, t.base_url, t.config::jsonb,
   t.governance_approved, t.is_active, t.status,
   t.source_class, t.sensitivity_class, t.review_required,
-  t.volatility_flag, t.data_retention_days, t.visibility_tier
+  t.data_retention_days, t.visibility_tier
 FROM default_tenant AS dt CROSS JOIN tier3_rows AS t
 ON CONFLICT (tenant_id, slug) DO UPDATE SET
   name           = EXCLUDED.name,
