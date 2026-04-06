@@ -537,3 +537,30 @@ async def generate_impact_summary(
         dimensions=dimensions,
         model=settings.gemini_model_mid,
     )
+
+
+class TriggerIngestRequest(BaseModel):
+    source_id: str
+
+
+class TriggerIngestResponse(BaseModel):
+    status: str
+    source_id: str
+    task_id: str
+
+
+@router.post(
+    "/trigger-ingest",
+    response_model=TriggerIngestResponse,
+    dependencies=[Depends(internal_auth)],
+)
+async def trigger_ingest(payload: TriggerIngestRequest) -> Any:
+    """Manually trigger ingestion for a specific source."""
+    from narad.workers.ingest_tasks import force_trigger_source_ingest
+
+    result = force_trigger_source_ingest.delay(payload.source_id)
+    return {
+        "status": "queued",
+        "source_id": payload.source_id,
+        "task_id": result.id,
+    }

@@ -160,6 +160,20 @@ export async function listPersonalizedPulseboardCards(
     idx++;
   }
 
+  // Entity type filter — match events linked to entities of specified types
+  const needsEntityJoin = preferences.entityTypes.length > 0;
+  if (needsEntityJoin) {
+    conditions.push(`EXISTS (
+      SELECT 1 FROM core.event_entity_links eel
+      JOIN core.entities ent ON ent.id = eel.entity_id
+      WHERE eel.event_id = pf.event_id
+        AND eel.tenant_id = pf.tenant_id
+        AND ent.entity_type = ANY($${idx})
+    )`);
+    values.push(preferences.entityTypes);
+    idx++;
+  }
+
   const rows = await queryRows<PulseboardFeedRow>(
     tenantId,
     `

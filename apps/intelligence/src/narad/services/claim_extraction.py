@@ -15,6 +15,19 @@ TITLE_CASE_RE = re.compile(r"\b(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\b")
 COMMON_TITLE_CASE_TERMS = {
     "Press Information Bureau",
     "Government Of India",
+    "The Company",
+    "Company Limited",
+    "Private Limited",
+    "Ministry Of",
+    "Department Of",
+    "Board Of Directors",
+    "Annual General Meeting",
+    "Financial Year",
+    "Stock Exchange",
+    "In The",
+    "For The",
+    "As Per",
+    "According To",
 }
 
 
@@ -46,6 +59,10 @@ def _title_case_mentions(text: str) -> list[str]:
     for match in TITLE_CASE_RE.findall(text):
         normalized = " ".join(match.split())
         if normalized in COMMON_TITLE_CASE_TERMS:
+            continue
+        if len(normalized) < 5:
+            continue
+        if normalized.lower().startswith(("the ", "a ", "an ", "in ", "for ", "on ", "as ", "to ", "of ")):
             continue
         if normalized not in mentions:
             mentions.append(normalized)

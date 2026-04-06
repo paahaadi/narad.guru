@@ -134,6 +134,37 @@ class LLMService:
             )
         return results
 
+    async def extract_entities(self, text: str) -> list[dict[str, object]]:
+        payload = await self._generate_json(
+            "\n".join(
+                [
+                    "Extract real-world named entities (companies, regulators, persons, locations).",
+                    "Return a JSON array where each object has:",
+                    '  "name": string (Canonical Title Case)',
+                    '  "entity_type": enum [company, regulator, person, ministry, organization, location]',
+                    '  "external_ids": object (look for CIN, ISIN, or PAN in the text next to the name, else empty object {})',
+                    f"Text: {text[:4000]}",
+                ]
+            )
+        )
+        if not isinstance(payload, list):
+            return []
+        
+        results: list[dict[str, object]] = []
+        for item in payload:
+            if not isinstance(item, dict):
+                continue
+            name = str(item.get("name", "")).strip()
+            if not name:
+                continue
+            results.append({
+                "name": name,
+                "entity_type": str(item.get("entity_type", "organization")).lower(),
+                "external_ids": item.get("external_ids", {}) if isinstance(item.get("external_ids"), dict) else {}
+            })
+        return results
+
+
     async def build_story_capsule(
         self,
         *,

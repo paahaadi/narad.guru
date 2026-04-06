@@ -8,6 +8,8 @@ import pytest
 from narad.adapters.tier2.acled import AcledAdapter
 from narad.adapters.tier2.firms import FirmsAdapter
 from narad.adapters.tier2.gdelt import GdeltAdapter
+from narad.adapters.tier2.google_news import GoogleNewsAdapter
+from narad.adapters.tier2.news_api import NewsApiAdapter
 from narad.adapters.tier2.opensky import OpenSkyAdapter
 
 
@@ -159,3 +161,67 @@ async def test_gdelt_adapter_parses_news_events(settings) -> None:
     doc = docs[0]
     assert doc.metadata["source"] == "gdelt"
     assert "India" in doc.title
+
+
+@pytest.mark.asyncio
+async def test_google_news_adapter_parses_rss(settings) -> None:
+    rss_xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>'
+        '<rss version="2.0">'
+        '<channel>'
+        '<item>'
+        '<title>Breaking News India</title>'
+        '<link>https://news.google.com/test1</link>'
+        '<pubDate>Mon, 06 Apr 2026 10:00:00 GMT</pubDate>'
+        '<description>Details about breaking news.</description>'
+        '</item>'
+        '</channel>'
+        '</rss>'
+    )
+    
+    with patch("narad.adapters.tier2.google_news.fetch_text", return_value=rss_xml):
+        adapter = GoogleNewsAdapter(settings)
+        docs = await adapter.fetch_documents(limit=5)
+        
+    assert len(docs) == 1
+    doc = docs[0]
+    assert doc.title == "Breaking News India"
+    assert doc.doc_type == "news_report"
+    assert doc.metadata["source"] == "google_news"
+
+
+@pytest.mark.asyncio
+async def test_news_api_adapter_parses_json(settings) -> None:
+    settings.newsapi_key = "test_key"
+    payload = json.dumps({
+        "status": "ok",
+        "totalResults": 1,
+        "articles": [
+            {
+                "source": {"id": "reuters", "name": "Reuters"},
+                "author": "John Doe",
+                "title": "Market Rally in Mumbai",
+                "description": "Indian markets hit record highs.",
+                "url": "https://reuters.com/india-news",
+                "publishedAt": "2026-04-06T12:00:00Z",
+                "content": "Full content here."
+            }
+        ]
+    })
+    
+    mock_resp = _mock_httpx_response(payload)
+    mock_client = AsyncMock()
+    mock_client.get = AsyncMock(return_value=mock_resp)
+    mock_client.__aenter__ = AsyncMock(return_value=mock_client)
+    mock_client.__aexit__ = AsyncMock(return_value=False)
+
+    with patch("narad.adapters.tier2.news_api.httpx.AsyncClient", return_value=mock_client):
+        adapter = NewsApiAdapter(settings)
+        docs = await adapter.fetch_documents(limit=5)
+
+    assert len(docs) == 1
+    doc = docs[0]
+    assert doc.title == "Market Rally in Mumbai"
+    assert doc.metadata["source_name"] == "Reuters"
+    assert doc.metadata["author"] == "John Doe"
+

@@ -41,6 +41,10 @@ class Settings(BaseSettings):
     celery_worker_prefetch_multiplier: int = Field(default=2, alias="CELERY_WORKER_PREFETCH_MULTIPLIER")
     celery_task_soft_time_limit: int = Field(default=300, alias="CELERY_TASK_SOFT_TIME_LIMIT")
     celery_task_time_limit: int = Field(default=600, alias="CELERY_TASK_TIME_LIMIT")
+    
+    # Alert trigger
+    alert_trigger_lookback_minutes: int = 10
+    
     broker_queue_names: tuple[str, ...] = ("default", "ingest", "enrichment", "projection", "maintenance")
 
     ingest_poll_interval_ms: int = Field(default=60_000, alias="INGEST_POLL_INTERVAL_MS")
@@ -113,6 +117,19 @@ class Settings(BaseSettings):
     # Track 4C — Tier 3 licensed source credentials
     ais_commercial_api_key: str = Field(default="", alias="AIS_COMMERCIAL_API_KEY")
     ais_commercial_base_url: str = Field(default="", alias="AIS_COMMERCIAL_BASE_URL")
+    newsapi_key: str = Field(default="", alias="NEWSAPI_KEY")
+    google_news_rss_url: str = Field(
+        default="https://news.google.com/rss/search?q=India&hl=en-IN&gl=IN&ceid=IN:en",
+        alias="GOOGLE_NEWS_RSS_URL",
+    )
+
+    # Social Media / SOCMINT
+    twitter_api_key: str = Field(default="", alias="TWITTER_API_KEY")
+    twitter_api_secret: str = Field(default="", alias="TWITTER_API_SECRET")
+    twitter_bearer_token: str = Field(default="", alias="TWITTER_BEARER_TOKEN")
+    reddit_client_id: str = Field(default="", alias="REDDIT_CLIENT_ID")
+    reddit_client_secret: str = Field(default="", alias="REDDIT_CLIENT_SECRET")
+    reddit_user_agent: str = Field(default="", alias="REDDIT_USER_AGENT")
 
 
 @lru_cache(maxsize=1)

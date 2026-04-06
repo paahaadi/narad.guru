@@ -35,10 +35,6 @@ export function WorkspaceRail() {
 
       <div className="workspace-rail__footer">
         <button type="button" className="workspace-link workspace-link--ghost">
-          <span className="material-symbols-outlined">settings</span>
-          <span>Settings</span>
-        </button>
-        <button type="button" className="workspace-link workspace-link--ghost">
           <span className="material-symbols-outlined">workspaces</span>
           <span>Workspace</span>
         </button>

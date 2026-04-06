@@ -148,7 +148,7 @@ async def _enrich_document(document_id: UUID) -> dict[str, object]:
     document_ingestion_service = DocumentIngestionService()
     llm_service = LLMService(settings)
     claim_service = ClaimExtractionService(llm_service)
-    entity_resolution_service = EntityResolutionService(settings)
+    entity_resolution_service = EntityResolutionService(settings, llm_service)
     event_canonicalization_service = EventCanonicalizationService(settings)
     story_capsule_service = StoryCapsuleService(llm_service)
 

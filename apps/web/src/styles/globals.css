@@ -793,14 +793,92 @@ button {
 }
 
 @media (max-width: 1280px) {
-  .app-shell__header,
-  .pulseboard-layout,
-  .geostrat-layout,
   .workspace-columns--three,
   .metric-strip {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+}
 
+.ticker-strip {
+  position: fixed;
+  bottom: 0;
+  left: 17rem;
+  right: 0;
+  height: 2.8rem;
+  background: rgba(11, 14, 21, 0.9);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--outline-soft);
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  gap: 2.4rem;
+  z-index: 100;
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+}
+
+.ticker-strip__label {
+  flex-shrink: 0;
+  color: var(--primary);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  padding-right: 1.5rem;
+  border-right: 1px solid var(--outline-soft);
+}
+
+.ticker-strip__container {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.ticker-strip__content {
+  display: flex;
+  gap: 3.5rem;
+  white-space: nowrap;
+  animation: ticker-scroll 32s linear infinite;
+  padding-right: 100%;
+}
+
+@keyframes ticker-scroll {
+  0% { transform: translateX(10%); }
+  100% { transform: translateX(-100%); }
+}
+
+.ticker-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.ticker-item--critical { color: #f87171; font-weight: 700; }
+.ticker-item--high { color: #fb923c; font-weight: 700; }
+
+.metric-card--sovereign {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--outline-soft);
+  background: linear-gradient(145deg, rgba(20, 26, 38, 0.94), rgba(15, 19, 29, 0.98));
+}
+
+.metric-card--sovereign::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background: var(--primary);
+  opacity: 0.8;
+}
+
+.metric-card--sovereign.accent-red::before { background: var(--danger); }
+.metric-card--sovereign.accent-cyan::before { background: var(--tertiary); }
+
+@media (max-width: 1280px) {
   .workspace-rail {
     width: 5.75rem;
   }

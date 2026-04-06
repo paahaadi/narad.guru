@@ -15,8 +15,15 @@ from datetime import datetime, timedelta, timezone
 
 from narad.config import get_settings
 from narad.db.pool import get_db_pool
+from narad.workers.celery_app import celery, run_async
 
 logger = logging.getLogger(__name__)
+
+
+@celery.task(name="narad.alerts.evaluate_alert_triggers")
+def evaluate_alert_triggers() -> dict[str, int]:
+    """Celery task entry point — wraps the async evaluator."""
+    return run_async(_evaluate_triggers())
 
 
 async def _evaluate_triggers() -> dict[str, int]:
@@ -46,8 +53,8 @@ async def _evaluate_triggers() -> dict[str, int]:
                 logger.debug("No active watchlist rules to evaluate")
                 return stats
 
-            # Fetch recent events (last 10 minutes)
-            cutoff = datetime.now(timezone.utc) - timedelta(minutes=10)
+            # Fetch recent events (last N minutes based on config)
+            cutoff = datetime.now(timezone.utc) - timedelta(minutes=settings.alert_trigger_lookback_minutes)
             recent_events = await conn.fetch("""
                 SELECT
                     id, tenant_id, event_type, title, summary,

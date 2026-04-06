@@ -251,10 +251,19 @@ function GeoStratMapCanvas({ initialLayers, initialEvents }: GeoStratMapCanvasPr
 
         map.on("moveend", () => {
           const center = map.getCenter();
+          const bounds = map.getBounds();
+          
           setViewport({
             longitude: Number(center.lng.toFixed(4)),
             latitude: Number(center.lat.toFixed(4)),
             zoom: Number(map.getZoom().toFixed(2)),
+          });
+
+          useGeoStratStore.getState().setViewportBounds({
+            west: bounds.getWest(),
+            south: bounds.getSouth(),
+            east: bounds.getEast(),
+            north: bounds.getNorth(),
           });
         });
 
@@ -346,6 +355,36 @@ function GeoStratMapCanvas({ initialLayers, initialEvents }: GeoStratMapCanvasPr
   );
 }
 
+function TickerStrip({ events }: { events: GeoEventPoint[] }) {
+  const tickerEvents = [...events].sort(
+    (a, b) => new Date(b.occurredAt).getTime() - new Date(a.occurredAt).getTime(),
+  );
+
+  return (
+    <aside className="ticker-strip">
+      <div className="ticker-strip__label">Live Intel</div>
+      <div className="ticker-strip__container">
+        <div className="ticker-strip__content">
+          {tickerEvents.slice(0, 10).map((event) => (
+            <div
+              key={event.eventId}
+              className={`ticker-item ticker-item--${event.severity === "critical" || event.severity === "high" ? event.severity : "normal"}`}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                {event.severity === "critical" ? "warning" : "sensors"}
+              </span>
+              <span>{event.title}</span>
+              <span style={{ opacity: 0.5 }}>•</span>
+              <span>{event.districtCode ?? "Unknown"}</span>
+            </div>
+          ))}
+          {/* Double the content for seamless loop if needed, but the animation uses width */}
+        </div>
+      </div>
+    </aside>
+  );
+}
+
 export function GeoStratWorkspace({
   initialKpis,
   initialLayers,
@@ -359,6 +398,9 @@ export function GeoStratWorkspace({
   const kpis = useGeoStratStore((state) => state.kpis);
   const replaceEvents = useGeoStratStore((state) => state.replaceEvents);
   const replaceKpis = useGeoStratStore((state) => state.replaceKpis);
+  const upsertEvent = useGeoStratStore((state) => state.upsertEvent);
+  const viewportBounds = useGeoStratStore((state) => state.viewportBounds);
+  const socketRef = useRef<WebSocket | null>(null);
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -398,13 +440,19 @@ export function GeoStratWorkspace({
     };
 
     const socket = new WebSocket(`${gatewayUrl}?token=${encodeURIComponent(token)}`);
+    socketRef.current = socket;
 
     socket.addEventListener("open", () => {
       socket.send(
         JSON.stringify({
-          channels: ["narad:pulseboard:event"],
+          channels: ["narad:pulseboard:event", "narad:geostrat:event"],
         }),
       );
+      
+      const currentBounds = useGeoStratStore.getState().viewportBounds;
+      if (currentBounds) {
+        socket.send(JSON.stringify({ type: "viewport", bounds: currentBounds }));
+      }
     });
 
     socket.addEventListener("message", (event) => {
@@ -412,15 +460,38 @@ export function GeoStratWorkspace({
         const parsed = JSON.parse(event.data) as {
           type?: string;
           payload?: {
+            channel?: string;
             entity_type?: string;
+            changes?: any;
           };
         };
 
-        if (parsed.type !== "delta" || parsed.payload?.entity_type !== "event") {
+        if (parsed.type !== "delta") {
           return;
         }
 
-        refreshGeoStrat();
+        if (parsed.payload?.channel === "narad:geostrat:event") {
+          const changes = parsed.payload.changes;
+          if (changes && changes.event_id) {
+            upsertEvent({
+              eventId: changes.event_id,
+              title: changes.title,
+              eventType: changes.event_type,
+              severity: changes.severity,
+              confidence: Number(changes.confidence ?? 0.5),
+              occurredAt: changes.occurred_at ?? new Date().toISOString(),
+              stateCode: changes.state_code,
+              districtCode: changes.district_code,
+              longitude: Number(changes.longitude),
+              latitude: Number(changes.latitude),
+            } as GeoEventPoint);
+          }
+          return;
+        }
+
+        if (parsed.payload?.entity_type === "event") {
+          refreshGeoStrat();
+        }
       } catch {
         return;
       }
@@ -431,46 +502,59 @@ export function GeoStratWorkspace({
         clearTimeout(refreshTimerRef.current);
       }
       socket.close();
+      socketRef.current = null;
     };
-  }, [replaceEvents, replaceKpis]);
+  }, [replaceEvents, replaceKpis, upsertEvent]);
+
+  useEffect(() => {
+    if (socketRef.current?.readyState === WebSocket.OPEN && viewportBounds) {
+      socketRef.current.send(JSON.stringify({ type: "viewport", bounds: viewportBounds }));
+    }
+  }, [viewportBounds]);
 
   const selectedEvent = events.find((event) => event.eventId === selectedEventId) ?? events[0] ?? null;
 
   return (
-    <section className="workspace-screen geostrat-screen">
+    <section className="workspace-screen geostrat-screen" style={{ paddingBottom: "3rem" }}>
       <div className="metric-strip">
-        <article className="metric-card">
+        <article className="metric-card metric-card--sovereign accent-orange">
           <span className="metric-card__label">Active Events</span>
-          <strong className="metric-card__value accent-orange">{kpis?.activeEvents ?? 0}</strong>
+          <strong className="metric-card__value">{kpis?.activeEvents ?? 0}</strong>
         </article>
-        <article className="metric-card">
+        <article className="metric-card metric-card--sovereign accent-red">
           <span className="metric-card__label">Critical Alerts</span>
-          <strong className="metric-card__value accent-red">{kpis?.criticalAlerts ?? 0}</strong>
+          <strong className="metric-card__value">{kpis?.criticalAlerts ?? 0}</strong>
         </article>
-        <article className="metric-card">
+        <article className="metric-card metric-card--sovereign">
           <span className="metric-card__label">Risk Districts</span>
           <strong className="metric-card__value">{kpis?.riskDistricts ?? 0}</strong>
         </article>
-        <article className="metric-card">
+        <article className="metric-card metric-card--sovereign">
           <span className="metric-card__label">Corporate Pressure</span>
-          <strong className="metric-card__value">{kpis?.corporatePressure ?? "low"}</strong>
+          <strong className="metric-card__value" style={{ textTransform: "uppercase" }}>
+            {kpis?.corporatePressure ?? "low"}
+          </strong>
         </article>
-        <article className="metric-card">
-          <span className="metric-card__label">Mapped Events</span>
-          <strong className="metric-card__value accent-cyan">{kpis?.mappedEvents ?? 0}</strong>
+        <article className="metric-card metric-card--sovereign accent-cyan">
+          <span className="metric-card__label">Total Mapped</span>
+          <strong className="metric-card__value">{kpis?.mappedEvents ?? 0}</strong>
         </article>
       </div>
 
       <div className="geostrat-layout">
         <aside className="map-control-rail panel panel--muted">
-          <p className="eyebrow">Command Filters</p>
+          <p className="eyebrow">Layer Command</p>
           <div className="map-control-rail__stack">
             {layers.map((layer) => (
               <button key={layer.id} type="button" className="map-tool">
-                <span className="material-symbols-outlined">layers</span>
+                <span className="material-symbols-outlined">
+                  {layer.slug === "events" ? "analytics" : "layers"}
+                </span>
                 <div>
                   <strong>{layer.name}</strong>
-                  <span>{layer.layerType}</span>
+                  <span className="eyebrow" style={{ fontSize: "0.6rem", opacity: 0.6 }}>
+                    {layer.layerType}
+                  </span>
                 </div>
               </button>
             ))}
@@ -482,85 +566,97 @@ export function GeoStratWorkspace({
 
           <div className="map-overlay-card panel panel--glass">
             <p className="eyebrow">Operational Posture</p>
-            <h2 className="hero-title">Strategic command map</h2>
-            <p className="hero-copy">
-              GeoStrat now reads live event density, configured layers, and KPI posture from the
-              app plane instead of static prototype content.
+            <h2 className="hero-title" style={{ fontSize: "1.6rem" }}>
+              Sovereign Command Center
+            </h2>
+            <p className="hero-copy" style={{ fontSize: "0.88rem" }}>
+              Live spatial intelligence plane. Viewport-aware streaming from regulatory and real-time
+              social sources (ACLED, FIRMS, Twitter, Google News).
             </p>
           </div>
 
-          <div className="map-status-strip panel panel--glass">
-            <div>
-              <span className="metric-card__label">Tracked layers</span>
-              <strong className="metric-card__value">{layers.length}</strong>
+          <div className="map-status-strip panel panel--glass" style={{ padding: "0.75rem 1rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <span className="material-symbols-outlined" style={{ color: "var(--success)" }}>
+                wifi_tethering
+              </span>
+              <strong className="metric-card__value" style={{ fontSize: "1rem", marginTop: 0 }}>
+                LIVE
+              </strong>
             </div>
-            <div>
-              <span className="metric-card__label">Viewport events</span>
-              <strong className="metric-card__value">{events.length}</strong>
-            </div>
-            <div>
-              <span className="metric-card__label">Update cadence</span>
-              <strong className="metric-card__value">30s</strong>
+            <div style={{ borderLeft: "1px solid var(--outline)", paddingLeft: "1rem" }}>
+              <span className="metric-card__label">In Viewport</span>
+              <strong className="metric-card__value" style={{ fontSize: "1rem", marginTop: 0 }}>
+                {events.length}
+              </strong>
             </div>
           </div>
         </div>
 
-        <aside className="panel geostrat-layout__rail">
+        <aside className="panel geostrat-layout__rail" style={{ padding: "1.25rem" }}>
           <div className="section-heading">
-            <p className="eyebrow">District Rail</p>
-            <h2>{selectedEvent ? selectedEvent.title : "Awaiting signal"}</h2>
+            <p className="eyebrow">Signal Details</p>
+            <h2 style={{ fontSize: "1.15rem", lineHeight: 1.4 }}>
+              {selectedEvent ? selectedEvent.title : "Scanning for signals..."}
+            </h2>
           </div>
 
           {selectedEvent ? (
             <>
-              <div className="data-grid">
+              <div className="data-grid" style={{ marginBottom: "1.5rem" }}>
                 <div className="data-point">
                   <span>Severity</span>
-                  <strong>{selectedEvent.severity}</strong>
+                  <strong className={`pill pill--${selectedEvent.severity}`} style={{ marginTop: "4px" }}>
+                    {selectedEvent.severity}
+                  </strong>
                 </div>
                 <div className="data-point">
                   <span>Confidence</span>
                   <strong>{Math.round(selectedEvent.confidence * 100)}%</strong>
                 </div>
                 <div className="data-point">
-                  <span>Location</span>
-                  <strong>
-                    {selectedEvent.districtCode ?? "Unknown"}
-                    {selectedEvent.stateCode ? `, ${selectedEvent.stateCode}` : ""}
-                  </strong>
+                  <span>District</span>
+                  <strong>{selectedEvent.districtCode ?? "Global"}</strong>
                 </div>
                 <div className="data-point">
-                  <span>Timestamp</span>
-                  <strong>{new Date(selectedEvent.occurredAt).toLocaleString()}</strong>
+                  <span>State</span>
+                  <strong>{selectedEvent.stateCode ?? "N/A"}</strong>
                 </div>
               </div>
 
-              <div className="list-stack">
-                {events.slice(0, 6).map((event) => (
+              <p className="eyebrow" style={{ marginBottom: "0.75rem" }}>
+                Recent Chronology
+              </p>
+              <div
+                className="list-stack"
+                style={{ maxHeight: "calc(100vh - 36rem)", overflow: "auto" }}
+              >
+                {events.slice(0, 8).map((event) => (
                   <button
                     key={event.eventId}
                     type="button"
                     className={`feed-card${event.eventId === selectedEvent.eventId ? " is-active" : ""}`}
                     onClick={() => selectEvent(event.eventId)}
+                    style={{ padding: "0.75rem" }}
                   >
                     <div className="feed-card__meta">
-                      <span className={`pill pill--${event.severity}`}>{event.severity}</span>
+                      <span className={`pill pill--${event.severity}`} style={{ fontSize: "0.6rem" }}>
+                        {event.severity}
+                      </span>
                       <span>{new Date(event.occurredAt).toLocaleTimeString()}</span>
                     </div>
-                    <strong>{event.title}</strong>
-                    <p>
-                      {event.districtCode ?? "Unknown district"}
-                      {event.stateCode ? `, ${event.stateCode}` : ""}
-                    </p>
+                    <strong style={{ fontSize: "0.88rem" }}>{event.title}</strong>
                   </button>
                 ))}
               </div>
             </>
           ) : (
-            <div className="empty-surface">No mapped events are available for the current tenant.</div>
+            <div className="empty-surface">No mapped events in current viewport.</div>
           )}
         </aside>
       </div>
+
+      <TickerStrip events={events} />
     </section>
   );
 }

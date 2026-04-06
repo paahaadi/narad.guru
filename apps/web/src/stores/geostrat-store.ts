@@ -28,6 +28,7 @@ type GeoStratState = {
   setViewport: (viewport: Partial<GeoViewport>) => void;
   setViewportBounds: (bounds: ViewportBounds) => void;
   patchEvent: (eventId: string, patch: Partial<GeoEventPoint>) => void;
+  upsertEvent: (event: GeoEventPoint) => void;
   replaceEvents: (events: GeoEventPoint[]) => void;
   replaceKpis: (kpis: GeoStratKpis) => void;
 };
@@ -65,6 +66,18 @@ export const useGeoStratStore = create<GeoStratState>((set) => ({
         event.eventId === eventId ? { ...event, ...patch, eventId } : event,
       ),
     })),
+  upsertEvent: (newEvent) =>
+    set((state) => {
+      const exists = state.events.some((e) => e.eventId === newEvent.eventId);
+      if (exists) {
+        return {
+          events: state.events.map((e) => (e.eventId === newEvent.eventId ? { ...e, ...newEvent } : e)),
+        };
+      }
+      return {
+        events: [newEvent, ...state.events].slice(0, 500), // Keep a reasonable cap
+      };
+    }),
   replaceEvents: (events) =>
     set((state) => {
       const nextSelected =

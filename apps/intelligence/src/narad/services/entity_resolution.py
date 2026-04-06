@@ -12,6 +12,7 @@ from narad.config import Settings
 from narad.db.models import SourceRecord
 from narad.db.session import Database
 from narad.services.claim_extraction import PersistedClaim
+from narad.services.llm import LLMService
 
 CIN_RE = re.compile(r"\b[A-Z]\d{5}[A-Z]{2}\d{4}[A-Z]{3}\d{6}\b")
 ISIN_RE = re.compile(r"\b[A-Z]{2}[A-Z0-9]{9}\d\b")
@@ -83,8 +84,9 @@ def _title_case_mentions(text: str) -> list[str]:
 
 
 class EntityResolutionService:
-    def __init__(self, settings: Settings) -> None:
+    def __init__(self, settings: Settings, llm_service: LLMService | None = None) -> None:
         self._settings = settings
+        self._llm_service = llm_service
 
     def _source_regulator(self, source: SourceRecord) -> str | None:
         names = {
@@ -116,7 +118,7 @@ class EntityResolutionService:
             return "target"
         return "mentioned"
 
-    def _extract_mentions(self, source: SourceRecord, claims: list[PersistedClaim]) -> list[EntityMention]:
+    async def _extract_mentions(self, source: SourceRecord, claims: list[PersistedClaim]) -> list[EntityMention]:
         mentions: list[EntityMention] = []
         if regulator := self._source_regulator(source):
             mentions.append(
@@ -127,6 +129,34 @@ class EntityResolutionService:
                     confidence=0.95,
                 )
             )
+
+        use_llm = self._llm_service and self._llm_service.configured and source.trust_tier in {1, 2}
+        if use_llm and self._llm_service is not None:
+            for claim in claims:
+                llm_entities = await self._llm_service.extract_entities(claim.claim_text)
+                for le in llm_entities:
+                    name = str(le.get("name", ""))
+                    if not name:
+                        continue
+                    external_ids = le.get("external_ids", {})
+                    if not isinstance(external_ids, dict):
+                        external_ids = {}
+                    
+                    llm_type = str(le.get("entity_type", ""))
+                    if llm_type in {"company", "regulator", "person", "ministry", "location"}:
+                        entity_type = llm_type
+                    else:
+                        entity_type = self._classify_entity_type(source, name)
+                    
+                    mentions.append(
+                        EntityMention(
+                            name=name,
+                            entity_type=entity_type,
+                            role=self._classify_role(entity_type, source, name),
+                            confidence=claim.confidence,
+                            external_ids={str(k): str(v) for k, v in external_ids.items() if str(k) and str(v)},
+                        )
+                    )
 
         for claim in claims:
             candidates = list(claim.entities_mentioned)
@@ -353,7 +383,7 @@ class EntityResolutionService:
         source: SourceRecord,
         claims: list[PersistedClaim],
     ) -> list[ResolvedEntity]:
-        mentions = self._extract_mentions(source, claims)
+        mentions = await self._extract_mentions(source, claims)
         resolved: list[ResolvedEntity] = []
         for mention in mentions:
             entity_row = await self._find_by_external_ids(database, tenant_id=tenant_id, mention=mention)
