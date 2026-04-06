@@ -397,37 +397,104 @@ function EditorialSurface() {
 
 /* ── Briefing AI Rail (right) ────────────────────────────────────────────── */
 
+type DraftSection = { title: string; body: string; confidence: number };
+
 function BriefingAIRail() {
   const selectedId = useBriefingsStore((s) => s.selectedBriefingId);
   const briefings = useBriefingsStore((s) => s.briefings);
   const versions = useBriefingsStore((s) => s.versions);
+  const editingSections = useBriefingsStore((s) => s.editingSections);
+  const setEditingSections = useBriefingsStore((s) => s.setEditingSections);
+  const markDirty = useBriefingsStore((s) => s.markDirty);
+
+  const [drafting, setDrafting] = useState(false);
+  const [draftResult, setDraftResult] = useState<{
+    sections: DraftSection[];
+    aiModel: string;
+    groundedOnInvestigations: number;
+    note: string;
+  } | null>(null);
+  const [draftError, setDraftError] = useState<string | null>(null);
+  const [applying, setApplying] = useState(false);
 
   const current = briefings.find((b) => b.id === selectedId);
+
+  async function handleGenerateDraft() {
+    if (!selectedId) return;
+    setDrafting(true);
+    setDraftError(null);
+    setDraftResult(null);
+    try {
+      const res = await fetch(`/api/briefings/${selectedId}/draft`, {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "Draft failed" })) as { error?: string };
+        throw new Error(err.error ?? `HTTP ${res.status}`);
+      }
+      const data = await res.json() as {
+        sections: DraftSection[];
+        aiModel: string;
+        groundedOnInvestigations: number;
+        note: string;
+      };
+      setDraftResult(data);
+    } catch (err) {
+      setDraftError(err instanceof Error ? err.message : "Draft generation failed");
+    } finally {
+      setDrafting(false);
+    }
+  }
+
+  function handleApplyDraft() {
+    if (!draftResult) return;
+    setApplying(true);
+    // Merge: keep analyst-edited sections, replace only empty bodies
+    const merged = draftResult.sections.map((ds, i) => {
+      const existing = editingSections[i];
+      if (existing && existing.body.trim().length > 0) return existing;
+      return { title: ds.title, body: ds.body };
+    });
+    // Append any draft sections beyond existing length
+    if (draftResult.sections.length > editingSections.length) {
+      for (let i = editingSections.length; i < draftResult.sections.length; i++) {
+        merged.push({ title: draftResult.sections[i].title, body: draftResult.sections[i].body });
+      }
+    }
+    setEditingSections(merged);
+    markDirty();
+    setApplying(false);
+    setDraftResult(null);
+  }
 
   if (!current) {
     return (
       <aside className="panel">
-        <p className="eyebrow">Briefing AI rail</p>
+        <p className="eyebrow">AI Draft Assist</p>
         <p style={{ opacity: 0.5, padding: "0.5rem" }}>Select a briefing</p>
       </aside>
     );
   }
 
+  const canDraft = !["published", "superseded", "withdrawn"].includes(current.status);
+
   const signals: string[] = [];
   if (current.status === "published") {
-    signals.push("Published briefings should be reviewed for supersedence on the next editorial cycle.");
+    signals.push("Published. Review for supersedence on next editorial cycle.");
   } else {
-    signals.push("Editorial warning: this briefing is still pre-publication and may need a final approver pass.");
+    signals.push("Pre-publication. Final approver pass required before publishing.");
   }
   if (current.approvedBy) {
     signals.push(`Approved by ${current.approvedBy} on ${formatDateTime(current.approvedAt, "pending")}.`);
-  } else {
-    signals.push("Pending approval.");
+  } else if (current.status !== "draft") {
+    signals.push("Pending approval gate.");
   }
 
   return (
     <aside className="panel">
-      <p className="eyebrow">Briefing AI rail</p>
+      <p className="eyebrow">AI Draft Assist</p>
+
       <div className="data-grid">
         <div className="data-point">
           <span>Status</span>
@@ -455,6 +522,87 @@ function BriefingAIRail() {
         </div>
       </div>
 
+      {/* ── AI Draft generation ── */}
+      {canDraft && (
+        <div style={{ marginTop: "1rem" }}>
+          <div className="section-heading section-heading--row">
+            <p className="eyebrow" style={{ fontSize: "0.7rem" }}>Draft Generation</p>
+            <button
+              className="pill pill--cyan"
+              onClick={handleGenerateDraft}
+              disabled={drafting}
+            >
+              {drafting ? "Generating…" : "Generate Draft"}
+            </button>
+          </div>
+
+          {draftError && (
+            <p style={{ color: "var(--color-critical, #f87171)", fontSize: "0.75rem", marginTop: "0.5rem" }}>
+              {draftError}
+            </p>
+          )}
+
+          {draftResult && (
+            <div style={{ marginTop: "0.5rem" }}>
+              <div
+                style={{
+                  background: "rgba(6,182,212,0.08)",
+                  border: "1px solid rgba(6,182,212,0.2)",
+                  borderRadius: "0.375rem",
+                  padding: "0.5rem",
+                  fontSize: "0.75rem",
+                  marginBottom: "0.5rem",
+                }}
+              >
+                <strong>Draft ready</strong>
+                <p style={{ opacity: 0.7, marginTop: "0.25rem" }}>
+                  Model: {draftResult.aiModel} ·{" "}
+                  {draftResult.groundedOnInvestigations} linked investigation(s)
+                </p>
+                <p style={{ opacity: 0.6, fontStyle: "italic", marginTop: "0.25rem" }}>
+                  {draftResult.note}
+                </p>
+              </div>
+
+              <div className="list-stack" style={{ maxHeight: "12rem", overflowY: "auto", marginBottom: "0.5rem" }}>
+                {draftResult.sections.map((s, i) => (
+                  <div key={i} className="feed-card" style={{ fontSize: "0.75rem" }}>
+                    <div className="feed-card__meta">
+                      <strong>{s.title || `Section ${i + 1}`}</strong>
+                      <span className="pill" style={{ fontSize: "0.65rem" }}>
+                        {s.confidence > 0 ? `${(s.confidence * 100).toFixed(0)}% conf` : "manual"}
+                      </span>
+                    </div>
+                    <p style={{ opacity: 0.7 }}>{s.body.slice(0, 120)}{s.body.length > 120 ? "…" : ""}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ display: "flex", gap: "0.5rem" }}>
+                <button
+                  className="pill pill--primary"
+                  onClick={handleApplyDraft}
+                  disabled={applying}
+                >
+                  {applying ? "Applying…" : "Apply to Editor"}
+                </button>
+                <button
+                  className="pill"
+                  onClick={() => setDraftResult(null)}
+                >
+                  Discard
+                </button>
+              </div>
+
+              <p style={{ fontSize: "0.65rem", opacity: 0.4, marginTop: "0.5rem", fontStyle: "italic" }}>
+                AI output must be reviewed before saving as a version or submitting for approval.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Editorial signals ── */}
       <div className="list-stack" style={{ marginTop: "0.75rem" }}>
         {signals.map((note) => (
           <div key={note} className="feed-card">

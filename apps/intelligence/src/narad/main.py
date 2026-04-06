@@ -9,6 +9,7 @@ from fastapi import FastAPI
 from narad.api.admin import router as admin_router
 from narad.api.corpwatch import router as corpwatch_router
 from narad.api.health import router as health_router
+from narad.api.internal import router as internal_router
 from narad.api.lexpulse import router as lexpulse_router
 from narad.config import get_settings
 from narad.db.session import Database
@@ -55,6 +56,7 @@ def create_app() -> FastAPI:
     app.include_router(admin_router, prefix="/api/admin")
     app.include_router(corpwatch_router)
     app.include_router(lexpulse_router)
+    app.include_router(internal_router)  # Track 4D: AI internal endpoints
     return app
 
 

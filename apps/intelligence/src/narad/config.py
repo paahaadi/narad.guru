@@ -107,6 +107,13 @@ class Settings(BaseSettings):
     opensky_password: str = Field(default="", alias="OPENSKY_PASSWORD")
     gdelt_enabled: bool = Field(default=True, alias="GDELT_ENABLED")
 
+    # Track 4D — AI Intelligence Assistant internal auth
+    internal_api_key: str = Field(default="", alias="INTERNAL_API_KEY")
+
+    # Track 4C — Tier 3 licensed source credentials
+    ais_commercial_api_key: str = Field(default="", alias="AIS_COMMERCIAL_API_KEY")
+    ais_commercial_base_url: str = Field(default="", alias="AIS_COMMERCIAL_BASE_URL")
+
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
