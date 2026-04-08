@@ -94,8 +94,11 @@ export function CaseDetail() {
 
   if (!selected) {
     return (
-      <article className="panel panel--document">
-        <p className="text--muted">Select an investigation from the directory.</p>
+      <article className="panel panel--document sovereign-empty-state">
+        <span className="material-symbols-outlined text--muted" style={{ fontSize: "48px" }}>
+          folder_managed
+        </span>
+        <p className="text--muted">Select an investigation from the directory to begin link analysis.</p>
       </article>
     );
   }
@@ -107,56 +110,55 @@ export function CaseDetail() {
   }
 
   return (
-    <article className="panel panel--document">
-      <div className="tab-bar" style={{ marginBottom: "1rem" }}>
+    <article className="panel panel--document investigations-detail">
+      <div className="tab-bar tab-bar--sovereign">
         {TABS.map((tab) => (
           <button
             key={tab}
-            className={`pill${activeTab === tab ? " pill--primary" : ""}`}
+            className={`tab-item${activeTab === tab ? " is-active" : ""}`}
             onClick={() => setActiveTab(tab)}
           >
-            {tab}
+            {tab.toUpperCase()}
           </button>
         ))}
       </div>
 
-      {activeTab === "overview" && (
-        <OverviewTab
-          selected={selected}
-          onTransition={handleStatusTransition}
-        />
-      )}
-      {activeTab === "items" && (
-        <ItemsTab
-          items={items}
-          investigationId={selectedCaseId!}
-          isAttaching={isAttachingItem}
-          setIsAttaching={setIsAttachingItem}
-          addItem={addItem}
-        />
-      )}
-      {activeTab === "evidence" && (
-        <EvidenceTab
-          evidence={evidence}
-          investigationId={selectedCaseId!}
-          isAttaching={isAttachingEvidence}
-          setIsAttaching={setIsAttachingEvidence}
-          addEvidence={addEvidence}
-          patchEvidence={patchEvidence}
-        />
-      )}
-      {activeTab === "notes" && (
-        <NotesTab
-          notes={notes}
-          investigationId={selectedCaseId!}
-          isWriting={isWritingNote}
-          setIsWriting={setIsWritingNote}
-          addNote={addNote}
-        />
-      )}
-      {activeTab === "timeline" && (
-        <TimelineTab items={items} evidence={evidence} notes={notes} custodyLog={custodyLog} />
-      )}
+      <div className="investigations-detail__content">
+        {activeTab === "overview" && (
+          <OverviewTab selected={selected} onTransition={handleStatusTransition} />
+        )}
+        {activeTab === "items" && (
+          <ItemsTab
+            items={items}
+            investigationId={selectedCaseId!}
+            isAttaching={isAttachingItem}
+            setIsAttaching={setIsAttachingItem}
+            addItem={addItem}
+          />
+        )}
+        {activeTab === "evidence" && (
+          <EvidenceTab
+            evidence={evidence}
+            investigationId={selectedCaseId!}
+            isAttaching={isAttachingEvidence}
+            setIsAttaching={setIsAttachingEvidence}
+            addEvidence={addEvidence}
+            patchEvidence={patchEvidence}
+          />
+        )}
+        {activeTab === "notes" && (
+          <NotesTab
+            notes={notes}
+            investigationId={selectedCaseId!}
+            isWriting={isWritingNote}
+            setIsWriting={setIsWritingNote}
+            addNote={addNote}
+          />
+        )}
+        {activeTab === "timeline" && (
+          <TimelineTab items={items} evidence={evidence} notes={notes} custodyLog={custodyLog} />
+        )}
+      </div>
     </article>
   );
 }
@@ -172,29 +174,74 @@ function OverviewTab({
 }) {
   const transitions = VALID_TRANSITIONS[selected.status] ?? [];
   return (
-    <>
-      <h1 className="hero-title">{selected.title}</h1>
-      <p className="hero-copy">{selected.description ?? "No description."}</p>
-      {selected.hypothesis && (
-        <section className="note-card">
-          <p className="eyebrow">Hypothesis</p>
-          <p>{selected.hypothesis}</p>
+    <div className="overview-tab">
+      <header className="overview-tab__header">
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+          <div>
+            <span className="eyebrow accent-cyan" style={{ marginBottom: "0.5rem", display: "block" }}>
+              INVESTIGATION #{selected.id.slice(0, 8).toUpperCase()}
+            </span>
+            <h1 className="hero-title" style={{ fontSize: "2rem", marginBottom: "1rem" }}>
+              {selected.title}
+            </h1>
+          </div>
+          <div className="metric-card metric-card--sovereign accent-orange" style={{ padding: "0.5rem 1rem" }}>
+            <span className="metric-card__label" style={{ fontSize: "0.6rem" }}>
+              Confidence
+            </span>
+            <strong className="metric-card__value" style={{ fontSize: "1.2rem" }}>
+              {Math.round((selected.confidence ?? 0) * 100)}%
+            </strong>
+          </div>
+        </div>
+
+        <div className="feed-card__meta" style={{ marginBottom: "2rem" }}>
+          <span className="pill pill--primary">{selected.status.toUpperCase()}</span>
+          <span className="text--muted">Owned by {selected.ownerName}</span>
+          <span className="text--muted">Updated {new Date(selected.updatedAt).toLocaleDateString()}</span>
+        </div>
+      </header>
+
+      <section className="overview-tab__info">
+        <div className="grid grid--2" style={{ gap: "2rem" }}>
+          <div className="info-block">
+            <h3 className="eyebrow" style={{ marginBottom: "0.75rem" }}>
+              Case Briefing
+            </h3>
+            <p className="hero-copy" style={{ fontSize: "1rem", lineHeight: "1.6" }}>
+              {selected.description ?? "No description provided for this investigation."}
+            </p>
+          </div>
+
+          <div className="info-block">
+            <h3 className="eyebrow" style={{ marginBottom: "0.75rem" }}>
+              Active Hypothesis
+            </h3>
+            <div className="note-card" style={{ borderLeft: "2px solid var(--accent-orange)", background: "rgba(255, 145, 0, 0.05)" }}>
+              <p style={{ fontStyle: "italic", color: "var(--text-bright)" }}>
+                {selected.hypothesis ??
+                  "Preliminary investigative phase. No formal hypothesis has been established yet."}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {transitions.length > 0 && (
+        <section className="overview-tab__actions" style={{ marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--border-subtle)" }}>
+          <h3 className="eyebrow" style={{ marginBottom: "1rem" }}>
+            Workflow Transitions
+          </h3>
+          <div style={{ display: "flex", gap: "1rem" }}>
+            {transitions.map((t) => (
+              <button key={t.target} className="pill pill--primary" onClick={() => onTransition(t.target)}>
+                {t.label}
+              </button>
+            ))}
+          </div>
         </section>
       )}
-      {transitions.length > 0 && (
-        <div style={{ display: "flex", gap: "0.5rem", marginTop: "1rem" }}>
-          {transitions.map((t) => (
-            <button
-              key={t.target}
-              className="pill pill--primary"
-              onClick={() => onTransition(t.target)}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-      )}
-    </>
+    </div>
   );
 }
 
@@ -294,14 +341,23 @@ function ItemsTab({
 
       <div className="list-stack">
         {items.map((item) => (
-          <div key={item.id} className="feed-card">
-            <div className="feed-card__meta">
-              <span className="pill">{item.itemType}</span>
-              <span className="pill pill--accent">{item.role}</span>
+          <div key={item.id} className="metric-card metric-card--sovereign accent-cyan" style={{ padding: "1rem", marginBottom: "0.75rem" }}>
+            <div className="feed-card__meta" style={{ marginBottom: "0.5rem" }}>
+              <span className="pill pill--accent" style={{ fontSize: "0.6rem" }}>
+                {item.itemType.toUpperCase()}
+              </span>
+              <span className="eyebrow" style={{ fontSize: "0.6rem" }}>
+                {item.role.replace("_", " ")}
+              </span>
             </div>
-            <strong>{item.itemId.slice(0, 8).toUpperCase()}</strong>
-            {item.notes && <p>{item.notes}</p>}
-            <p className="text--muted">Added by {item.addedByName}</p>
+            <strong style={{ fontSize: "0.9rem", display: "block", marginBottom: "0.5rem" }}>
+              ID: {item.itemId.slice(0, 8).toUpperCase()}
+            </strong>
+            {item.notes && <p className="text--muted" style={{ fontSize: "0.85rem", marginBottom: "1rem" }}>{item.notes}</p>}
+            <div className="feed-card__meta" style={{ opacity: 0.7 }}>
+              <span style={{ fontSize: "0.65rem" }}>Added by {item.addedByName}</span>
+              <span style={{ fontSize: "0.65rem" }}>{new Date(item.createdAt).toLocaleDateString()}</span>
+            </div>
           </div>
         ))}
         {items.length === 0 && <p className="text--muted">No items linked yet.</p>}
@@ -379,22 +435,51 @@ function EvidenceTab({
 
       <div className="list-stack">
         {evidence.map((e) => (
-          <div key={e.id} className="feed-card">
-            <div className="feed-card__meta">
-              <span className={`pill ${e.isVerified ? "pill--primary" : "pill--warning"}`}>
-                {e.isVerified ? "Verified" : "Unverified"}
+          <div
+            key={e.id}
+            className={`metric-card metric-card--sovereign ${e.isVerified ? "accent-cyan" : "accent-orange"}`}
+            style={{ padding: "1rem", marginBottom: "0.75rem" }}
+          >
+            <div className="feed-card__meta" style={{ marginBottom: "0.75rem" }}>
+              <span className={`pill ${e.isVerified ? "pill--primary" : "pill--warning"}`} style={{ fontSize: "0.6rem" }}>
+                {e.isVerified ? "VERIFIED" : "PENDING VERIFICATION"}
               </span>
             </div>
-            <strong>{e.documentTitle}</strong>
-            <p className="text--muted">Hash: {e.evidenceHash.slice(0, 16)}...</p>
+            <strong style={{ fontSize: "1rem", display: "block", marginBottom: "0.5rem" }}>{e.documentTitle}</strong>
+
+            <div className="provenance-block" style={{ background: "rgba(0,0,0,0.2)", padding: "0.75rem", borderRadius: "4px", marginBottom: "1rem" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.25rem" }}>
+                <span className="eyebrow" style={{ fontSize: "0.55rem", opacity: 0.6 }}>SHA-256 PROOF</span>
+                <span className="material-symbols-outlined" style={{ fontSize: "12px", opacity: 0.6 }}>fingerprint</span>
+              </div>
+              <code style={{ fontSize: "0.7rem", color: "var(--accent-cyan)", wordBreak: "break-all" }}>
+                {e.evidenceHash}
+              </code>
+            </div>
+
             {!e.isVerified && (
-              <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.5rem" }}>
-                <button className="pill pill--primary" onClick={() => handleVerify(e.id, "verified")}>Verify</button>
-                <button className="pill pill--danger" onClick={() => handleVerify(e.id, "challenged")}>Challenge</button>
+              <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+                <button
+                  className="pill pill--primary"
+                  onClick={() => handleVerify(e.id, "verified")}
+                  style={{ flex: 1, justifyContent: "center" }}
+                >
+                  Confirm Integrity
+                </button>
+                <button
+                  className="pill pill--danger"
+                  onClick={() => handleVerify(e.id, "challenged")}
+                  style={{ flex: 1, justifyContent: "center" }}
+                >
+                  Challenge
+                </button>
               </div>
             )}
             {e.isVerified && e.verifiedByName && (
-              <p className="text--muted">Verified by {e.verifiedByName} on {e.verifiedAt}</p>
+              <div className="feed-card__meta" style={{ marginTop: "0.5rem", opacity: 0.7 }}>
+                <span style={{ fontSize: "0.65rem" }}>Signed by {e.verifiedByName}</span>
+                <span style={{ fontSize: "0.65rem" }}>{new Date(e.verifiedAt!).toLocaleDateString()}</span>
+              </div>
             )}
           </div>
         ))}
@@ -474,14 +559,26 @@ function NotesTab({
 
       <div className="list-stack">
         {notes.map((n) => (
-          <div key={n.id} className="feed-card">
-            <div className="feed-card__meta">
-              <span className="pill">{n.noteType}</span>
-              {n.isAiGenerated && <span className="pill pill--accent">AI</span>}
-              <span className="pill">{n.verificationStatus}</span>
+          <div
+            key={n.id}
+            className={`metric-card metric-card--sovereign ${n.noteType === "hypothesis" ? "accent-orange" : ""}`}
+            style={{ padding: "1rem", marginBottom: "0.75rem" }}
+          >
+            <div className="feed-card__meta" style={{ marginBottom: "0.5rem" }}>
+              <span className="pill pill--muted" style={{ fontSize: "0.6rem" }}>
+                {n.noteType.toUpperCase()}
+              </span>
+              {n.isAiGenerated && (
+                <span className="pill pill--accent" style={{ fontSize: "0.6rem" }}>
+                  AI SUGGESTION
+                </span>
+              )}
             </div>
-            <p>{n.body}</p>
-            <p className="text--muted">{n.authorName} &middot; {n.createdAt}</p>
+            <p style={{ fontSize: "0.95rem", lineHeight: "1.5", marginBottom: "1rem" }}>{n.body}</p>
+            <div className="feed-card__meta" style={{ opacity: 0.7 }}>
+              <span style={{ fontSize: "0.65rem" }}>{n.authorName}</span>
+              <span style={{ fontSize: "0.65rem" }}>{new Date(n.createdAt).toLocaleDateString()}</span>
+            </div>
           </div>
         ))}
         {notes.length === 0 && <p className="text--muted">No notes yet.</p>}
@@ -531,12 +628,18 @@ function TimelineTab({
       <p className="eyebrow">Activity Timeline ({entries.length})</p>
       <div className="list-stack">
         {entries.map((entry, idx) => (
-          <div key={`${entry.timestamp}-${idx}`} className="feed-card">
-            <div className="feed-card__meta">
-              <span className="pill">{entry.action}</span>
-              <span>{entry.timestamp}</span>
+          <div
+            key={`${entry.timestamp}-${idx}`}
+            className="metric-card metric-card--sovereign"
+            style={{ padding: "1rem", marginBottom: "0.75rem", borderLeft: "2px solid var(--border-subtle)" }}
+          >
+            <div className="feed-card__meta" style={{ marginBottom: "0.5rem" }}>
+              <span className="eyebrow accent-cyan" style={{ fontSize: "0.6rem" }}>
+                {entry.action.toUpperCase()}
+              </span>
+              <span style={{ fontSize: "0.65rem", opacity: 0.6 }}>{new Date(entry.timestamp).toLocaleString()}</span>
             </div>
-            <p>{entry.detail}</p>
+            <p style={{ fontSize: "0.9rem" }}>{entry.detail}</p>
           </div>
         ))}
         {entries.length === 0 && <p className="text--muted">No activity yet.</p>}

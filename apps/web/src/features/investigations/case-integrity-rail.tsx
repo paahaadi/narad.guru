@@ -45,9 +45,13 @@ export function CaseIntegrityRail() {
 
   if (!selected) {
     return (
-      <aside className="panel">
-        <p className="eyebrow">Case Integrity</p>
-        <p className="text--muted">Select a case to view integrity details.</p>
+      <aside className="panel panel--muted investigations-rail sovereign-empty-state">
+        <span className="material-symbols-outlined text--muted" style={{ fontSize: "32px" }}>
+          gpp_maybe
+        </span>
+        <p className="text--muted" style={{ fontSize: "0.8rem" }}>
+          Select a case to view integrity metrics and AI discovery signals.
+        </p>
       </aside>
     );
   }
@@ -56,146 +60,120 @@ export function CaseIntegrityRail() {
   const custodyActions = custodyLog.length;
 
   return (
-    <aside className="panel">
-      <p className="eyebrow">Case Integrity</p>
+    <aside className="panel investigations-rail">
+      <div className="section-heading section-heading--row">
+        <p className="eyebrow accent-cyan">CASE INTEGRITY</p>
+        <span className="material-symbols-outlined" style={{ fontSize: "18px", opacity: 0.6 }}>
+          encrypted
+        </span>
+      </div>
 
       {/* ── Metadata grid ── */}
-      <div className="data-grid">
+      <div className="data-grid data-grid--sovereign" style={{ marginBottom: "2rem" }}>
         <div className="data-point">
-          <span>Status</span>
-          <strong>{selected.status.replace(/_/g, " ")}</strong>
+          <span className="data-point__label">PROTECTION</span>
+          <strong className="data-point__value">{selected.classification.toUpperCase()}</strong>
         </div>
         <div className="data-point">
-          <span>Classification</span>
-          <strong>{selected.classification}</strong>
+          <span className="data-point__label">CONFIDENCE</span>
+          <strong className="data-point__value">
+            {selected.confidence === null ? "PENDING" : `${Math.round(selected.confidence * 100)}%`}
+          </strong>
         </div>
         <div className="data-point">
-          <span>Confidence</span>
-          <strong>{selected.confidence === null ? "pending" : selected.confidence.toFixed(2)}</strong>
+          <span className="data-point__label">EVIDENCE PKG</span>
+          <strong className="data-point__value">{selected.evidenceCount}</strong>
         </div>
         <div className="data-point">
-          <span>Owner</span>
-          <strong>{selected.ownerName}</strong>
-        </div>
-        <div className="data-point">
-          <span>Items</span>
-          <strong>{selected.itemCount}</strong>
-        </div>
-        <div className="data-point">
-          <span>Evidence</span>
-          <strong>{selected.evidenceCount}</strong>
-        </div>
-        <div className="data-point">
-          <span>Notes</span>
-          <strong>{selected.noteCount}</strong>
-        </div>
-        <div className="data-point">
-          <span>Updated</span>
-          <strong>{new Date(selected.updatedAt).toLocaleDateString()}</strong>
+          <span className="data-point__label">UPDATED</span>
+          <strong className="data-point__value">{new Date(selected.updatedAt).toLocaleDateString()}</strong>
         </div>
       </div>
 
       {/* ── Chain-of-custody summary ── */}
       {custodyActions > 0 && (
-        <div style={{ marginTop: "1rem" }}>
-          <p className="eyebrow">Chain of Custody</p>
-          <div className="data-grid" style={{ marginTop: "0.5rem" }}>
-            <div className="data-point">
-              <span>Custody events</span>
-              <strong>{custodyActions}</strong>
-            </div>
-            <div className="data-point">
-              <span>Verified actions</span>
-              <strong>{verifiedCount}</strong>
-            </div>
-          </div>
-          <div className="list-stack" style={{ marginTop: "0.5rem", maxHeight: "12rem", overflowY: "auto" }}>
-            {custodyLog.slice(0, 6).map((entry) => (
-              <div key={entry.id} className="feed-card" style={{ fontSize: "0.75rem" }}>
-                <div className="feed-card__meta">
-                  <span className="pill">{entry.action}</span>
-                  <span className="text--muted">{entry.userName}</span>
+        <section className="integrity-section" style={{ marginBottom: "2rem" }}>
+          <p className="eyebrow" style={{ marginBottom: "0.75rem" }}>
+            LINEAGE LOG
+          </p>
+          <div className="list-stack list-stack--compact" style={{ maxHeight: "15rem", overflowY: "auto" }}>
+            {custodyLog.slice(0, 8).map((entry) => (
+              <div
+                key={entry.id}
+                className="metric-card metric-card--sovereign"
+                style={{ padding: "0.75rem", marginBottom: "0.5rem" }}
+              >
+                <div className="feed-card__meta" style={{ marginBottom: "0.25rem" }}>
+                  <span className="pill pill--muted" style={{ fontSize: "0.55rem" }}>
+                    {entry.action.toUpperCase()}
+                  </span>
+                  <span style={{ fontSize: "0.6rem", opacity: 0.6 }}>{entry.userName}</span>
                 </div>
-                <p className="text--muted" style={{ fontFamily: "monospace", fontSize: "0.7rem" }}>
-                  Hash: {entry.evidenceHashAtAction.slice(0, 12)}…
-                </p>
+                <div className="provenance-block" style={{ background: "rgba(0,0,0,0.15)", padding: "0.35rem 0.5rem", borderRadius: "2px" }}>
+                  <code style={{ fontSize: "0.6rem", color: "var(--accent-cyan)", fontFamily: "monospace" }}>
+                    SHA256:{entry.evidenceHashAtAction.slice(0, 10)}...
+                  </code>
+                </div>
               </div>
             ))}
           </div>
-        </div>
+        </section>
       )}
 
-      {/* ── AI Suggestions (4D hook) ── */}
-      <div style={{ marginTop: "1.25rem" }}>
-        <div className="section-heading section-heading--row">
-          <p className="eyebrow">AI Discovery</p>
+      {/* ── AI Suggestions ── */}
+      <section className="integrity-section">
+        <div className="section-heading section-heading--row" style={{ marginBottom: "1rem" }}>
+          <p className="eyebrow accent-orange">AI DISCOVERY</p>
           <button
-            className="pill pill--cyan"
+            className="pill pill--accent"
             onClick={handleSuggest}
             disabled={loadingSuggestions}
+            style={{ fontSize: "0.65rem", padding: "0.25rem 0.75rem" }}
           >
-            {loadingSuggestions ? "Analysing…" : "Suggest"}
+            {loadingSuggestions ? "SCANNING..." : "SCAN SIGNALS"}
           </button>
         </div>
 
-        {suggestionError && (
-          <p className="text--muted" style={{ color: "var(--color-critical, #f87171)", marginTop: "0.5rem" }}>
-            {suggestionError}
-          </p>
-        )}
+        {suggestionError && <p className="text--error" style={{ fontSize: "0.75rem" }}>{suggestionError}</p>}
 
         {suggestions && (
-          <div style={{ marginTop: "0.5rem" }}>
+          <div className="suggestions-container">
             {suggestions.reasoning && (
-              <p style={{ fontSize: "0.75rem", opacity: 0.7, marginBottom: "0.5rem" }}>
-                {suggestions.reasoning}
-              </p>
+              <div className="note-card" style={{ marginBottom: "1rem", borderLeft: "1px solid var(--accent-orange)" }}>
+                <p style={{ fontSize: "0.75rem", opacity: 0.8, fontStyle: "italic" }}>{suggestions.reasoning}</p>
+              </div>
             )}
-            {suggestions.entities.length > 0 && (
-              <>
-                <p className="eyebrow" style={{ fontSize: "0.65rem" }}>Suggested Entities</p>
-                <div className="list-stack">
-                  {suggestions.entities.map((e, i) => (
-                    <div key={i} className="feed-card" style={{ fontSize: "0.75rem" }}>
-                      <div className="feed-card__meta">
-                        <span className="pill">{e.type}</span>
-                        <span className="text--muted">{(e.confidence * 100).toFixed(0)}%</span>
-                      </div>
-                      <strong>{e.label}</strong>
-                    </div>
-                  ))}
+
+            {[...suggestions.entities, ...suggestions.events].map((s, i) => (
+              <div
+                key={i}
+                className="metric-card metric-card--sovereign accent-orange"
+                style={{ padding: "0.75rem", marginBottom: "0.5rem" }}
+              >
+                <div className="feed-card__meta" style={{ marginBottom: "0.25rem" }}>
+                  <span className="pill pill--muted" style={{ fontSize: "0.55rem" }}>
+                    {'eventType' in s ? s.eventType.toUpperCase() : s.type.toUpperCase()}
+                  </span>
+                  <span style={{ fontSize: "0.6rem", color: "var(--accent-orange)" }}>
+                    {Math.round(s.confidence * 100)}% Match
+                  </span>
                 </div>
-              </>
-            )}
-            {suggestions.events.length > 0 && (
-              <>
-                <p className="eyebrow" style={{ fontSize: "0.65rem", marginTop: "0.5rem" }}>Suggested Events</p>
-                <div className="list-stack">
-                  {suggestions.events.map((e, i) => (
-                    <div key={i} className="feed-card" style={{ fontSize: "0.75rem" }}>
-                      <div className="feed-card__meta">
-                        <span className="pill">{e.eventType}</span>
-                        <span className="text--muted">{(e.confidence * 100).toFixed(0)}%</span>
-                      </div>
-                      <strong>{e.label}</strong>
-                    </div>
-                  ))}
+                <strong style={{ fontSize: "0.85rem", display: "block", marginBottom: "0.5rem" }}>{s.label}</strong>
+                <div className="confidence-bar" style={{ height: "2px", background: "rgba(255,145,0,0.1)", width: "100%" }}>
+                  <div
+                    style={{
+                      height: "100%",
+                      background: "var(--accent-orange)",
+                      width: `${s.confidence * 100}%`,
+                      boxShadow: "0 0 5px var(--accent-orange)",
+                    }}
+                  />
                 </div>
-              </>
-            )}
-            <p
-              style={{
-                fontSize: "0.65rem",
-                opacity: 0.5,
-                marginTop: "0.5rem",
-                fontStyle: "italic",
-              }}
-            >
-              AI suggestions require analyst verification before use in published briefings.
-            </p>
+              </div>
+            ))}
           </div>
         )}
-      </div>
+      </section>
     </aside>
   );
 }

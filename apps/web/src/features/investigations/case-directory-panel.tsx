@@ -105,32 +105,54 @@ export function CaseDirectoryPanel() {
       )}
 
       <div className="list-stack">
-        {filtered.map((c) => (
-          <div
-            key={c.id}
-            className={`feed-card${c.id === selectedCaseId ? " is-active" : ""}`}
-            onClick={() => selectCase(c.id)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => e.key === "Enter" && selectCase(c.id)}
-          >
-            <div className="feed-card__meta">
-              <span className={`pill ${CLASSIFICATION_BADGES[c.classification] ?? "pill--muted"}`}>
-                {c.classification}
-              </span>
-              <span className="pill">{c.status.replace("_", " ")}</span>
+        {filtered.map((c) => {
+          let accentClass = "";
+          if (c.status === "active") accentClass = "accent-orange";
+          else if (c.status === "closed" || c.status === "archived") accentClass = "accent-cyan";
+          else if (c.status === "under_review") accentClass = "accent-red";
+
+          return (
+            <div
+              key={c.id}
+              className={`metric-card metric-card--sovereign ${accentClass}${c.id === selectedCaseId ? " is-active" : ""}`}
+              onClick={() => selectCase(c.id)}
+              style={{ cursor: "pointer", padding: "1rem", marginBottom: "0.75rem" }}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === "Enter" && selectCase(c.id)}
+            >
+              <div className="feed-card__meta" style={{ marginBottom: "0.5rem" }}>
+                <span
+                  className={`pill ${CLASSIFICATION_BADGES[c.classification] ?? "pill--muted"}`}
+                  style={{ fontSize: "0.6rem" }}
+                >
+                  {c.classification}
+                </span>
+                <span className="eyebrow" style={{ fontSize: "0.65rem" }}>
+                  {c.status.replace("_", " ")}
+                </span>
+              </div>
+              <strong style={{ fontSize: "0.95rem", display: "block", marginBottom: "0.25rem" }}>
+                {c.title}
+              </strong>
+              <div className="feed-card__meta" style={{ marginTop: "0.75rem", opacity: 0.8 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                    account_tree
+                  </span>
+                  <span style={{ fontSize: "0.7rem" }}>{c.itemCount} items</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                    verified
+                  </span>
+                  <span style={{ fontSize: "0.7rem" }}>{c.evidenceCount} proof</span>
+                </div>
+              </div>
             </div>
-            <strong>{c.id.slice(0, 8).toUpperCase()}</strong>
-            <p>{c.title}</p>
-            <div className="feed-card__meta">
-              <span>{c.itemCount} items</span>
-              <span>{c.evidenceCount} evidence</span>
-            </div>
-          </div>
-        ))}
-        {filtered.length === 0 && (
-          <p className="text--muted">No investigations found.</p>
-        )}
+          );
+        })}
+        {filtered.length === 0 && <p className="text--muted">No investigations found.</p>}
       </div>
     </aside>
   );
