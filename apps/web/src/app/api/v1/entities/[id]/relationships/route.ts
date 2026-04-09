@@ -4,7 +4,7 @@ import { queryRows } from "@/lib/db";
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const start = Date.now();
   const { principal, error } = await requireApiKey(request);

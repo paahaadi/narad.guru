@@ -6,34 +6,53 @@ import type { CorpWatchWorkspaceData } from "@/lib/workspaces/corpwatch";
 import { searchEntities } from "@/lib/workspaces/corpwatch-client";
 import type { CorpWatchSearchResult } from "@/lib/workspaces/corpwatch-types";
 import { formatDate, formatDateTime } from "@/lib/workspaces/formatting";
-import { WorkspaceMetricStrip } from "@/features/workspaces/workspace-primitives";
-
-const interactivePillStyle = {
-  border: "none",
-  cursor: "pointer",
-} as const;
 
 function riskPill(score: number) {
-  if (score >= 70) {
-    return "pill pill--critical";
-  }
-  if (score >= 40) {
-    return "pill pill--high";
-  }
-  if (score > 0) {
-    return "pill pill--cyan";
-  }
+  if (score >= 70) return "pill pill--critical";
+  if (score >= 40) return "pill pill--high";
+  if (score > 0) return "pill pill--cyan";
   return "pill";
 }
 
+function riskBorder(score: number) {
+  if (score >= 70) return "risk-critical";
+  if (score >= 40) return "risk-high";
+  if (score > 0) return "risk-medium";
+  return "risk-low";
+}
+
 function resultHeadline(result: CorpWatchSearchResult) {
-  if (result.description) {
-    return result.description;
-  }
-  if (result.aliases.length > 0) {
-    return `Aliases: ${result.aliases.join(", ")}`;
-  }
+  if (result.description) return result.description;
+  if (result.aliases.length > 0) return `Aliases: ${result.aliases.join(", ")}`;
   return "Entity profile ready for deep inspection.";
+}
+
+function RiskGauge({ score, size = 56 }: { score: number; size?: number }) {
+  const r = (size - 8) / 2;
+  const circumference = 2 * Math.PI * r;
+  const pct = Math.min(Math.max(score, 0), 100) / 100;
+  const offset = circumference * (1 - pct);
+  const color = score >= 70 ? "#ee7d77" : score >= 40 ? "#ec7609" : score > 0 ? "#8ce7ff" : "#6c758c";
+
+  return (
+    <div className="risk-gauge" style={{ width: size, height: size }}>
+      <svg viewBox={`0 0 ${size} ${size}`}>
+        <circle className="risk-gauge__track" cx={size / 2} cy={size / 2} r={r} />
+        <circle
+          className="risk-gauge__fill"
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          stroke={color}
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+        />
+      </svg>
+      <span className="risk-gauge__label" style={{ color }}>
+        {score > 0 ? Math.round(score) : "–"}
+      </span>
+    </div>
+  );
 }
 
 export function CorpWatchSearchPage({ data }: { data: CorpWatchWorkspaceData }) {
@@ -56,59 +75,71 @@ export function CorpWatchSearchPage({ data }: { data: CorpWatchWorkspaceData }) 
 
     void searchEntities(deferredQuery, { limit: 10 })
       .then((items) => {
-        if (isCancelled) {
-          return;
-        }
+        if (isCancelled) return;
         setResults(items);
         setError(null);
       })
       .catch((reason) => {
-        if (isCancelled) {
-          return;
-        }
+        if (isCancelled) return;
         setResults([]);
         setError(reason instanceof Error ? reason.message : "Unable to search entities");
       })
       .finally(() => {
-        if (!isCancelled) {
-          setIsSearching(false);
-        }
+        if (!isCancelled) setIsSearching(false);
       });
 
-    return () => {
-      isCancelled = true;
-    };
+    return () => { isCancelled = true; };
   }, [deferredQuery]);
 
   return (
-    <section className="workspace-screen">
-      <WorkspaceMetricStrip items={data.metrics} />
+    <section className="workspace-screen" style={{ paddingBottom: "3rem" }}>
+      {/* ── Sovereign Metric Strip ── */}
+      <div className="metric-strip">
+        {data.metrics.map((item) => (
+          <article
+            key={item.label}
+            className={`metric-card metric-card--sovereign${item.accent ? ` ${item.accent}` : ""}`}
+          >
+            <span className="metric-card__label">{item.label}</span>
+            <strong className="metric-card__value">{item.value}</strong>
+            {item.meta ? (
+              <p className="cluster-row--tight" style={{ marginTop: "0.25rem" }}>
+                {item.meta}
+              </p>
+            ) : null}
+          </article>
+        ))}
+      </div>
 
-      <div className="workspace-columns workspace-columns--three">
-        <article className="panel panel--document">
-          <div className="section-heading section-heading--row">
-            <div>
-              <p className="eyebrow">Entity Search</p>
-              <h1 className="hero-title">CorpWatch intelligence desk</h1>
+      {/* ── Three-Column Layout ── */}
+      <div className="corpwatch-layout">
+        {/* ── Search & Results ── */}
+        <article className="panel panel--document corpwatch-layout__profile">
+          <div className="section-heading" style={{ marginBottom: "1.25rem" }}>
+            <p className="eyebrow">Entity Search</p>
+            <h1 className="hero-title" style={{ fontSize: "1.5rem" }}>
+              CorpWatch Intelligence Desk
+            </h1>
+            <div className="cluster-row" style={{ marginTop: "0.45rem" }}>
+              <span className={`pill${data.isFallback ? "" : " pill--cyan"}`}>
+                {data.isFallback ? "core fallback" : "projection-backed"}
+              </span>
             </div>
-            <span className={`pill${data.isFallback ? "" : " pill--cyan"}`}>
-              {data.isFallback ? "core fallback" : "projection-backed"}
-            </span>
           </div>
 
-          <label className="command-bar" aria-label="Search CorpWatch entities">
+          <label className="command-bar" aria-label="Search CorpWatch entities" style={{ marginBottom: "1.2rem" }}>
             <span className="material-symbols-outlined">travel_explore</span>
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search company, director, CIN, ISIN, LLPIN"
             />
-            <span className="command-bar__hint">Search</span>
+            <span className="command-bar__hint">⌘K</span>
           </label>
 
           <div className="list-stack">
             {error ? (
-              <div className="feed-card">
+              <div className="feed-card entity-card--sovereign risk-critical">
                 <strong>Search unavailable</strong>
                 <p>{error}</p>
               </div>
@@ -119,16 +150,22 @@ export function CorpWatchSearchPage({ data }: { data: CorpWatchWorkspaceData }) 
                 <div className="feed-card is-active">
                   <div className="feed-card__meta">
                     <span className="pill pill--primary">
-                      {isSearching ? "searching" : `${results.length} results`}
+                      {isSearching ? "scanning" : `${results.length} results`}
                     </span>
-                    <span>{deferredQuery}</span>
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.72rem" }}>
+                      {deferredQuery}
+                    </span>
                   </div>
                   <strong>Structured and fuzzy entity search</strong>
                   <p>Matches combine exact IDs, text search, and projection-backed entity metadata.</p>
                 </div>
 
                 {results.map((result) => (
-                  <Link key={result.entityId} href={`/corpwatch/${result.entityId}`} className="feed-card">
+                  <Link
+                    key={result.entityId}
+                    href={`/corpwatch/${result.entityId}`}
+                    className={`feed-card entity-card--sovereign ${riskBorder(result.riskScore)}`}
+                  >
                     <div className="feed-card__meta">
                       <span className={riskPill(result.riskScore)}>
                         risk {Math.round(result.riskScore) || "warming"}
@@ -137,8 +174,8 @@ export function CorpWatchSearchPage({ data }: { data: CorpWatchWorkspaceData }) 
                     </div>
                     <strong>{result.canonicalName}</strong>
                     <p>{resultHeadline(result)}</p>
-                    <p>
-                      {result.entityType} · {result.locationLabel} · updated{" "}
+                    <p style={{ fontSize: "0.72rem", color: "var(--text-secondary)" }}>
+                      {result.entityType} · {result.locationLabel || "Location pending"} · updated{" "}
                       {formatDateTime(result.updatedAt, "recently")}
                     </p>
                   </Link>
@@ -153,9 +190,15 @@ export function CorpWatchSearchPage({ data }: { data: CorpWatchWorkspaceData }) 
               </>
             ) : (
               data.trackedEntities.map((entity) => (
-                <Link key={entity.entityId} href={`/corpwatch/${entity.entityId}`} className="feed-card">
+                <Link
+                  key={entity.entityId}
+                  href={`/corpwatch/${entity.entityId}`}
+                  className={`feed-card entity-card--sovereign ${riskBorder(entity.riskScore)}`}
+                >
                   <div className="feed-card__meta">
-                    <span className={riskPill(entity.riskScore)}>risk {Math.round(entity.riskScore) || "warming"}</span>
+                    <span className={riskPill(entity.riskScore)}>
+                      risk {Math.round(entity.riskScore) || "warming"}
+                    </span>
                     <span>{formatDateTime(entity.updatedAt, "projection pending")}</span>
                   </div>
                   <strong>{entity.name}</strong>
@@ -168,37 +211,48 @@ export function CorpWatchSearchPage({ data }: { data: CorpWatchWorkspaceData }) 
           </div>
         </article>
 
-        <article className="panel panel--document">
-          <div className="section-heading">
-            <p className="eyebrow">Featured Profile</p>
-            <div className="cluster-row">
-              <span className={riskPill(data.featured.riskScore)}>
-                risk {Math.round(data.featured.riskScore) || "warming"}
-              </span>
-              <span className="pill">{data.featured.companyStatus}</span>
-              <span className="pill">{data.featured.sector}</span>
+        {/* ── Spotlight Dossier (Featured Profile) ── */}
+        <article className="panel panel--document corpwatch-layout__intel">
+          <div className="dossier-banner" style={{ marginBottom: "1.25rem" }}>
+            <div className="dossier-banner__seal">
+              {data.featured.name
+                .split(/\s+/)
+                .slice(0, 2)
+                .map((w) => w[0]?.toUpperCase() ?? "")
+                .join("")}
             </div>
+            <div className="dossier-banner__body">
+              <p className="eyebrow">Spotlight Dossier</p>
+              <h1>{data.featured.name}</h1>
+              <div className="cluster-row" style={{ marginTop: "0.4rem" }}>
+                <span className={riskPill(data.featured.riskScore)}>
+                  risk {Math.round(data.featured.riskScore) || "warming"}
+                </span>
+                <span className="pill">{data.featured.companyStatus}</span>
+                <span className="pill">{data.featured.sector}</span>
+              </div>
+            </div>
+            <RiskGauge score={data.featured.riskScore} />
           </div>
 
-          <h2 className="hero-title">{data.featured.name}</h2>
-          <p className="hero-copy">{data.featured.description}</p>
+          <p className="hero-copy" style={{ marginBottom: "1.2rem" }}>{data.featured.description}</p>
 
           <div className="story-sections">
             <section className="panel panel--muted">
-              <p className="eyebrow">Current posture</p>
+              <p className="eyebrow">Current Posture</p>
               <div className="data-grid">
                 <div className="data-point">
                   <span>Location</span>
                   <strong>{data.featured.locationLabel}</strong>
                 </div>
                 <div className="data-point">
-                  <span>Risk / health</span>
+                  <span>Risk / Health</span>
                   <strong>
                     {Math.round(data.featured.riskScore)} / {Math.round(data.featured.healthScore)}
                   </strong>
                 </div>
                 <div className="data-point">
-                  <span>Last filing</span>
+                  <span>Last Filing</span>
                   <strong>{formatDate(data.featured.lastFilingDate, "Projection pending")}</strong>
                 </div>
                 <div className="data-point">
@@ -209,7 +263,7 @@ export function CorpWatchSearchPage({ data }: { data: CorpWatchWorkspaceData }) 
             </section>
 
             <section className="panel panel--muted">
-              <p className="eyebrow">Why inspect now</p>
+              <p className="eyebrow">Why Inspect Now</p>
               <ul className="timeline-list">
                 {data.featured.recentEvents.slice(0, 3).map((event) => (
                   <li key={event.eventId}>
@@ -225,9 +279,13 @@ export function CorpWatchSearchPage({ data }: { data: CorpWatchWorkspaceData }) 
             </section>
           </div>
 
-          <Link href={`/corpwatch/${data.featured.entityId}`} className="feed-card is-active">
+          <Link
+            href={`/corpwatch/${data.featured.entityId}`}
+            className="feed-card is-active"
+            style={{ marginTop: "1rem" }}
+          >
             <div className="feed-card__meta">
-              <span className="pill pill--primary">Open desk</span>
+              <span className="pill pill--primary">Open Desk</span>
               <span>{data.featured.entityType}</span>
             </div>
             <strong>View full entity profile</strong>
@@ -235,14 +293,21 @@ export function CorpWatchSearchPage({ data }: { data: CorpWatchWorkspaceData }) 
           </Link>
         </article>
 
-        <aside className="panel">
-          <p className="eyebrow">Monitoring Rail</p>
+        {/* ── Watchlist Rail ── */}
+        <aside className="panel corpwatch-layout__rail">
+          <div className="section-heading">
+            <p className="eyebrow">Watchlist Rail</p>
+            <h2 style={{ fontSize: "1.1rem", marginTop: "0.15rem" }}>Tracked Entities</h2>
+          </div>
+
           <div className="list-stack">
             {data.trackedEntities.map((entity) => (
               <Link
                 key={entity.entityId}
                 href={`/corpwatch/${entity.entityId}`}
-                className={`feed-card${entity.entityId === data.featured.entityId ? " is-active" : ""}`}
+                className={`feed-card entity-card--sovereign ${riskBorder(entity.riskScore)}${
+                  entity.entityId === data.featured.entityId ? " is-active" : ""
+                }`}
               >
                 <div className="feed-card__meta">
                   <span className={riskPill(entity.riskScore)}>
@@ -252,7 +317,7 @@ export function CorpWatchSearchPage({ data }: { data: CorpWatchWorkspaceData }) 
                 </div>
                 <strong>{entity.name}</strong>
                 <p>
-                  {entity.companyStatus} · {entity.relationshipCount} relationships · {entity.locationLabel}
+                  {entity.companyStatus} · {entity.relationshipCount} rel · {entity.locationLabel}
                 </p>
               </Link>
             ))}

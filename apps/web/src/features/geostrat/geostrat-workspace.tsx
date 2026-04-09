@@ -14,6 +14,8 @@ type GeoStratWorkspaceProps = {
 type GeoStratMapCanvasProps = {
   initialLayers: GeoLayerConfig[];
   initialEvents: GeoEventPoint[];
+  showStates: boolean;
+  showDistricts: boolean;
 };
 
 type MapLibreModule = typeof import("maplibre-gl");
@@ -88,7 +90,7 @@ function readSessionCookie(name = "narad_session") {
   return pair ? decodeURIComponent(pair.slice(name.length + 1)) : null;
 }
 
-function GeoStratMapCanvas({ initialLayers, initialEvents }: GeoStratMapCanvasProps) {
+function GeoStratMapCanvas({ initialLayers, initialEvents, showStates, showDistricts }: GeoStratMapCanvasProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const overlayRef = useRef<MapboxOverlayInstance | null>(null);
@@ -122,7 +124,24 @@ function GeoStratMapCanvas({ initialLayers, initialEvents }: GeoStratMapCanvasPr
     maxZoom: initialEventsLayer?.maxZoom ?? eventsLayer?.maxZoom ?? 12,
   });
   const initialEventsRef = useRef(initialEvents.length > 0 ? initialEvents : events);
+
   const selectedEventIdRef = useRef(selectedEventId);
+  const showStatesRef = useRef(showStates);
+  const showDistrictsRef = useRef(showDistricts);
+
+  useEffect(() => {
+    showStatesRef.current = showStates;
+    if (mapRef.current && mapRef.current.getLayer("layer-state")) {
+      mapRef.current.setLayoutProperty("layer-state", "visibility", showStates ? "visible" : "none");
+    }
+  }, [showStates]);
+
+  useEffect(() => {
+    showDistrictsRef.current = showDistricts;
+    if (mapRef.current && mapRef.current.getLayer("layer-district")) {
+      mapRef.current.setLayoutProperty("layer-district", "visibility", showDistricts ? "visible" : "none");
+    }
+  }, [showDistricts]);
 
   useEffect(() => {
     selectedEventIdRef.current = selectedEventId;
@@ -181,6 +200,8 @@ function GeoStratMapCanvas({ initialLayers, initialEvents }: GeoStratMapCanvasPr
                 9,
                 "medium",
                 7,
+                "low",
+                5,
                 5,
               ],
               "circle-color": [
@@ -201,6 +222,36 @@ function GeoStratMapCanvas({ initialLayers, initialEvents }: GeoStratMapCanvasPr
               "circle-stroke-width": 1.4,
             },
           });
+
+          // Add National boundaries
+          map.addSource("boundary-national", { type: "geojson", data: "/maps/india_national_min.geojson" });
+          map.addLayer({
+            id: "layer-national",
+            type: "line",
+            source: "boundary-national",
+            paint: { "line-color": "#4a5568", "line-width": 1.5 },
+          }, "events-pulse");
+
+          // Add State boundaries
+          map.addSource("boundary-state", { type: "geojson", data: "/maps/india_states_min.geojson" });
+          map.addLayer({
+            id: "layer-state",
+            type: "line",
+            source: "boundary-state",
+            layout: { visibility: showStatesRef.current ? "visible" : "none" },
+            paint: { "line-color": "#4a5568", "line-width": 1, "line-dasharray": [2, 2] },
+          }, "events-pulse");
+
+          // Add District boundaries
+          map.addSource("boundary-district", { type: "geojson", data: "/maps/india_districts_min.geojson" });
+          map.addLayer({
+            id: "layer-district",
+            type: "line",
+            source: "boundary-district",
+            layout: { visibility: showDistrictsRef.current ? "visible" : "none" },
+            paint: { "line-color": "#2d3748", "line-width": 0.5, "line-dasharray": [1, 2] },
+          }, "events-pulse");
+
 
           const overlay = new deckMapbox.MapboxOverlay({
             interleaved: true,
@@ -390,6 +441,8 @@ export function GeoStratWorkspace({
   initialLayers,
   initialEvents,
 }: GeoStratWorkspaceProps) {
+  const [showStates, setShowStates] = useState(true);
+  const [showDistricts, setShowDistricts] = useState(false);
   const hydrate = useGeoStratStore((state) => state.hydrate);
   const layers = useGeoStratStore((state) => state.layers);
   const events = useGeoStratStore((state) => state.events);
@@ -559,34 +612,72 @@ export function GeoStratWorkspace({
               </button>
             ))}
           </div>
+
+          <div style={{ marginTop: "2rem" }}>
+            <p className="eyebrow" style={{ marginBottom: "1rem" }}>Administrative Boundaries</p>
+            <div className="list-stack">
+              <button
+                type="button"
+                className={`panel--glass metric-card${showStates ? " is-active" : ""}`}
+                style={{ textAlign: "left", padding: "0.75rem", display: "flex", alignItems: "center", gap: "0.75rem", border: showStates ? "1px solid var(--accent)" : undefined }}
+                onClick={() => setShowStates(!showStates)}
+              >
+                <span className="material-symbols-outlined" style={{ color: showStates ? "var(--accent)" : undefined }}>
+                  {showStates ? "check_box" : "check_box_outline_blank"}
+                </span>
+                <div>
+                  <strong>State Boundaries</strong>
+                  <span className="eyebrow" style={{ fontSize: "0.6rem", opacity: 0.6, display: "block", marginTop: "2px", letterSpacing: "0.05em" }}>
+                    Toggle visualization
+                  </span>
+                </div>
+              </button>
+              
+              <button
+                type="button"
+                className={`panel--glass metric-card${showDistricts ? " is-active" : ""}`}
+                style={{ textAlign: "left", padding: "0.75rem", display: "flex", alignItems: "center", gap: "0.75rem", border: showDistricts ? "1px solid var(--accent)" : undefined }}
+                onClick={() => setShowDistricts(!showDistricts)}
+              >
+                <span className="material-symbols-outlined" style={{ color: showDistricts ? "var(--accent)" : undefined }}>
+                  {showDistricts ? "check_box" : "check_box_outline_blank"}
+                </span>
+                <div>
+                  <strong>District Boundaries</strong>
+                  <span className="eyebrow" style={{ fontSize: "0.6rem", opacity: 0.6, display: "block", marginTop: "2px", letterSpacing: "0.05em" }}>
+                    Toggle visualization
+                  </span>
+                </div>
+              </button>
+            </div>
+          </div>
         </aside>
 
         <div className="geostrat-layout__map">
-          <GeoStratMapCanvas initialLayers={initialLayers} initialEvents={initialEvents} />
+          <GeoStratMapCanvas initialLayers={initialLayers} initialEvents={initialEvents} showStates={showStates} showDistricts={showDistricts} />
 
-          <div className="map-overlay-card panel panel--glass">
-            <p className="eyebrow">Operational Posture</p>
-            <h2 className="hero-title" style={{ fontSize: "1.6rem" }}>
-              Sovereign Command Center
-            </h2>
-            <p className="hero-copy" style={{ fontSize: "0.88rem" }}>
-              Live spatial intelligence plane. Viewport-aware streaming from regulatory and real-time
-              social sources (ACLED, FIRMS, Twitter, Google News).
+          <div className="map-overlay-card panel panel--glass" style={{ padding: "0.6rem 0.75rem" }}>
+            <p className="eyebrow" style={{ fontSize: "0.55rem", marginBottom: "0.15rem" }}>Operational Posture</p>
+            <p style={{ margin: 0, fontSize: "0.78rem", fontWeight: 700, lineHeight: 1.25 }}>
+              Sovereign Command
+            </p>
+            <p style={{ margin: "0.2rem 0 0", fontSize: "0.68rem", color: "var(--text-muted)", lineHeight: 1.35 }}>
+              Live spatial intelligence
             </p>
           </div>
 
-          <div className="map-status-strip panel panel--glass" style={{ padding: "0.75rem 1rem" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <span className="material-symbols-outlined" style={{ color: "var(--success)" }}>
+          <div className="map-status-strip panel panel--glass" style={{ padding: "0.5rem 0.75rem", pointerEvents: "none" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+              <span className="material-symbols-outlined" style={{ color: "var(--success)", fontSize: "16px" }}>
                 wifi_tethering
               </span>
-              <strong className="metric-card__value" style={{ fontSize: "1rem", marginTop: 0 }}>
+              <strong style={{ fontSize: "0.72rem", fontWeight: 800, letterSpacing: "0.1em" }}>
                 LIVE
               </strong>
             </div>
-            <div style={{ borderLeft: "1px solid var(--outline)", paddingLeft: "1rem" }}>
-              <span className="metric-card__label">In Viewport</span>
-              <strong className="metric-card__value" style={{ fontSize: "1rem", marginTop: 0 }}>
+            <div style={{ borderLeft: "1px solid var(--outline)", paddingLeft: "0.65rem" }}>
+              <span className="metric-card__label" style={{ fontSize: "0.55rem" }}>In Viewport</span>
+              <strong style={{ display: "block", fontSize: "0.85rem", fontFamily: "var(--font-headline)", fontWeight: 800 }}>
                 {events.length}
               </strong>
             </div>

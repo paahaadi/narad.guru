@@ -344,12 +344,12 @@ export function LexPulseWorkspaceTerminal({ initialData }: LexPulseWorkspaceTerm
             </button>
           </form>
 
-          <div className="cluster-row cluster-row--tight">
+          <div className="cluster-row cluster-row--tight" style={{ flexWrap: "wrap" }}>
             <button type="button" className="pill" onClick={() => setForceRefresh((current) => !current)}>
               {forceRefresh ? "Disable force refresh" : "Force refresh"}
             </button>
             {suggestedPrompts.map((prompt) => (
-              <button key={prompt} type="button" className="pill pill--cyan" onClick={() => setQueryText(prompt)}>
+              <button key={prompt} type="button" className="pill pill--cyan" style={{ whiteSpace: "normal", textAlign: "left" }} onClick={() => setQueryText(prompt)}>
                 {prompt}
               </button>
             ))}
