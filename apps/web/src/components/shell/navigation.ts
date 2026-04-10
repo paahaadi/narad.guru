@@ -13,6 +13,7 @@ export const WORKSPACES: WorkspaceDescriptor[] = [
   { path: "/watchlists", label: "Watchlists", icon: "visibility", accent: "cyan" },
   { path: "/investigations", label: "Investigations", icon: "troubleshoot", accent: "red" },
   { path: "/briefings", label: "Briefings", icon: "description", accent: "orange" },
+  { path: "/admin", label: "Pipeline Admin", icon: "database", accent: "orange" },
   { path: "/settings", label: "Settings", icon: "settings", accent: "zinc" },
 ];
 

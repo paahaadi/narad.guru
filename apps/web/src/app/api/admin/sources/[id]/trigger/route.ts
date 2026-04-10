@@ -1,21 +1,26 @@
 import { NextResponse } from "next/server";
-import { getIntelligenceServiceUrl, requireApiSession, tenantHeaders } from "../_helpers";
+import { getIntelligenceServiceUrl, requireApiSession, tenantHeaders } from "../../_helpers";
 
-export async function GET(request: Request) {
+export async function POST(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
   const session = await requireApiSession(request);
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const { id } = params;
+
   try {
-    const response = await fetch(new URL("/api/admin/sources", getIntelligenceServiceUrl()), {
+    const response = await fetch(new URL(`/api/admin/sources/${id}/trigger?force=true`, getIntelligenceServiceUrl()), {
+      method: "POST",
       headers: tenantHeaders(session.tenantId),
-      next: { revalidate: 0 },
     });
 
     if (response.ok) {
       const payload = await response.json();
-      return NextResponse.json(payload);
+      return NextResponse.json(payload, { status: 202 });
     }
     
     return NextResponse.json(

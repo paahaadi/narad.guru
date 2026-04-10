@@ -8,7 +8,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const response = await fetch(new URL("/api/admin/sources", getIntelligenceServiceUrl()), {
+    const response = await fetch(new URL("/api/admin/pipeline/stats", getIntelligenceServiceUrl()), {
       headers: tenantHeaders(session.tenantId),
       next: { revalidate: 0 },
     });

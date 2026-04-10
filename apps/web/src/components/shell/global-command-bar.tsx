@@ -9,6 +9,14 @@ type GlobalCommandBarProps = {
 export function GlobalCommandBar({ workspaceLabel }: GlobalCommandBarProps) {
   const commandQuery = useShellStore((state) => state.commandQuery);
   const setCommandQuery = useShellStore((state) => state.setCommandQuery);
+  const setAskNaradOpen = useShellStore((state) => state.setAskNaradOpen);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && commandQuery.trim()) {
+      e.preventDefault();
+      setAskNaradOpen(true);
+    }
+  };
 
   return (
     <label className="command-bar" aria-label="Global command search">
@@ -16,6 +24,7 @@ export function GlobalCommandBar({ workspaceLabel }: GlobalCommandBarProps) {
       <input
         value={commandQuery}
         onChange={(event) => setCommandQuery(event.target.value)}
+        onKeyDown={handleKeyDown}
         placeholder={`Ask NARAD inside ${workspaceLabel}...`}
       />
       <span className="command-bar__hint">CMD</span>

@@ -5,6 +5,7 @@ import { GlobalCommandBar } from "@/components/shell/global-command-bar";
 import { HeaderUtilityCluster } from "@/components/shell/header-utility-cluster";
 import { getWorkspaceForPath } from "@/components/shell/navigation";
 import { WorkspaceRail } from "@/components/shell/workspace-rail";
+import { AskNaradPanel } from "@/features/ask-narad/ask-narad-panel";
 import type { SessionPrincipal } from "@/lib/auth";
 
 type AppShellProps = {
@@ -29,6 +30,7 @@ export function AppShell({ session, children }: AppShellProps) {
           <HeaderUtilityCluster session={session} />
         </header>
         <div className="app-shell__content">{children}</div>
+        <AskNaradPanel />
       </div>
     </div>
   );
